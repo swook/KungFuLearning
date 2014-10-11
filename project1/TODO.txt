@@ -1,0 +1,27 @@
+1. Cross-validation to select features
+- choose best method to split into:
+  - training   subset
+  - validation subset
+- choose best model
+- calculate estimate of prediction error
+
+
+2. Apply to validation dataset
+- calculate generalization error
+
+
+NOTE
+----
+prediction e >> generalization e: under-fitting
+prediction e << generalization e: over-fitting
+
+
+3. Adjust our model
+
+
+Additionally
+------------
+Feature transformations
+Output transformations
+
+
