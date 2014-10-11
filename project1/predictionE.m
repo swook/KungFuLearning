@@ -1,7 +1,8 @@
-function err = predictionE(predictors, V)
+function err = predictionE(predictors, V, lambda)
 	% Inputs:
 	% - predictors: Response of regression
 	% - V:          Validation dataset
+	% - lambda:     Tuning parameter of Ridge Regression
 	%
 	% Output:
 	% - err: Prediction error
@@ -14,6 +15,6 @@ function err = predictionE(predictors, V)
 
 	% Calculate prediction error
 	dR = realR - estR;
-	err = mean(dR .^ 2);
+	err = dot(dR, dR);
 end
 

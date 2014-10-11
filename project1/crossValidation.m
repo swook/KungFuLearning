@@ -6,9 +6,6 @@ function [ est_perr ] = crossvalidation(dataset, lambda)
 	% Output:
 	% - est_perr: Estimated prediction error
 
-	% Add 0th predictor (y-intercept)
-	dataset = [ones(size(dataset, 1), 1) dataset];
-
 	% No. of rows in datasets
 	N = size(dataset, 1);
 
@@ -49,7 +46,7 @@ function [ est_perr ] = crossvalidation(dataset, lambda)
 		predictors = ridgeRegression(T, lambda);
 
 		% Calculate prediction error
-		perr = predictionE(predictors, V);
+		perr = predictionE(predictors, V, lambda);
 		perr_list = [perr_list perr];
 	end
 
