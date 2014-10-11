@@ -2,45 +2,38 @@ clear all;
 
 T = importData('training.csv');
 
-% Renormalize data
+% Initial lambda search
+lambda = getMinErrLambda(T);
+
+%% Discard insignificant predictors
+% Normalize dataset to be able to identify irrelevant parameters (cols of T)
 Nrows = size(T, 1);
-%T = (T - repmat(mean(T), Nrows, 1)) ./ repmat(var(T), Nrows, 1);
+normT = T(:, 2:end);
+normT = (normT - repmat(mean(normT), Nrows, 1)) ./ repmat(var(normT), Nrows, 1);
 
-% Minimum step in searching for min-err-lambda
-lambda0 = 0;
-lambdaN = 100;
-dlambda = lambdaN;
-min_dlambda = 1e-7;
+% Calculate predictors using preliminary lambda estimate
+predictors = ridgeRegression(normT, lambda)
 
-% Reduce range in which to search for value of lambda at minimum
-% estimated prediction error
-while dlambda > min_dlambda
-	dlambda = (lambdaN - lambda0) / 20;
-	lambdas = lambda0:dlambda:lambdaN;
+% Only consider predictors above certain value in ln scale
+predictors = log10(abs(predictors))
+plot(1:numel(predictors), predictors);
+sigcols = find(predictors >  -3.5) + 1; % First predictor of T is special (and important)
+T = T(:, [1; sigcols; size(T, 2)]);
 
-	errs = [];
-
-	for lambda = lambdas
-		lambda
-		errs = [errs crossValidation(T, lambda)];
-	end
-
-	% Select lambda with smallest estimated prediction errors
-	[min_value, min_index] = min(errs);
-	selected_lambda = lambdas(min_index);
-
-	lambda0 = max(selected_lambda - dlambda, 0);
-	lambdaN = selected_lambda + dlambda;
-end
-
-plot(lambdas, errs);
+% Find min err lambda again with reduced dataset
+lambda = getMinErrLambda(T);
 
 % Final predictors
-predictors = ridgeRegression(T, selected_lambda)
+predictors = ridgeRegression(T, lambda)
 
 % Calculate estimated results from validation set
 V = importData('validation.csv');
-estR = V * predictors;
+
+% Re-insert 0s for insignificant predictors
+newpredictors = zeros(size(V, 2), 1);
+newpredictors([1; sigcols]) = predictors;
+
+estR = V * newpredictors;
 
 % Write our predictions (of time) to file
 csvwrite('predictions.txt', estR);
