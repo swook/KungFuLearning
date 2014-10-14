@@ -3,7 +3,7 @@ function selected_lambda = getMinErrLambda(T)
 	lambda0 = 0;
 	lambdaN = 100;
 	dlambda = lambdaN;
-	min_dlambda = 1e-6;
+	min_dlambda = 1e-7;
 
 	% Reduce range in which to search for value of lambda at minimum
 	% estimated prediction error
@@ -16,6 +16,13 @@ function selected_lambda = getMinErrLambda(T)
 		for lambda = lambdas
 			disp(lambda);
 			errs = [errs crossValidation(T, lambda)];
+            
+%             figure(3)
+%             hold on
+%             predictors = ridgeRegression(T, lambda)
+%             plot(1:length(predictors),log10(predictors),'b')
+%             grid on
+%             hold on
 		end
 
 		% Select lambda with smallest estimated prediction errors
@@ -24,7 +31,19 @@ function selected_lambda = getMinErrLambda(T)
 
 		lambda0 = max(selected_lambda - dlambda, 0);
 		lambdaN = selected_lambda + dlambda;
-	end
-
-	plot(lambdas, errs);
+%         figure(1)
+%         plot(lambdas, errs)
+        
+        
+    end
+%     figure(3)
+%     predictors = ridgeRegression(T,selected_lambda);
+%     h=plot(1:length(predictors),log10(predictors),'+-r')
+%     legend(h,'optimal \lambda');
+%     title('Variation of the predictors as a function of \lambda')
+%     ylabel('predictor value (logarithmic)')
+%     xlabel('predictor index')
+%     grid on
+%     hold off
+	
 end
