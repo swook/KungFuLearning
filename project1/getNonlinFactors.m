@@ -4,11 +4,12 @@ function [T_factorized,selected_factors] = getNonlinFactors(T,lambda)
 % each parameter
     n_param = size(T,2)-1; % number of parameters
     selected_factors = ones(n_param,1); %initialization
-    err = crossvalidation(T,lambda) % original error
+    err_org = crossvalidation(T,lambda) % original error
     
     % first loop, only one parameter gets its factor each time
     for i=1:n_param
-        for j=0.5:0.5:5
+        err=err_org;
+        for j=1:1:5
             T_factorized=T;
             T_factorized(:,i)=T_factorized(:,i).^j;
             err_new = crossvalidation(T_factorized,lambda);
