@@ -9,8 +9,19 @@ function [T_factorized,selected_factors] = getNonlinFactors(T,lambda)
     % first loop, only one parameter gets its factor each time
     for i=1:n_param
         err=err_org;
-        for j=1:1:5
+        for j=1:2:5
             T_factorized=T;
+%             if mod(j,2)==0 % for pair powers, negative values have to stay negative!
+%                 for k=1:numel(T_factorized(:,i))
+%                     if T_factorized(k,i)<0
+%                         T_factorized(k,i)=-(T_factorized(k,i)^j);
+%                     else
+%                         T_factorized(k,i)=T_factorized(k,i)^j;
+%                     end
+%                 end
+%             else
+%                 T_factorized(:,i)=T_factorized(:,i).^j;
+%             end
             T_factorized(:,i)=T_factorized(:,i).^j;
             err_new = crossvalidation(T_factorized,lambda);
             if err_new<err
