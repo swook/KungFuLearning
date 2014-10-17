@@ -9,7 +9,7 @@ lambda = getMinErrLambda(T);
 
 
 n_param = size(T,2)-1; % number of parameters
-err_org = crossvalidation(T,lambda) % original error
+err_org = crossValidation(T,lambda) % original error
 
 sets = {[1:n_param], [1:n_param]};
 [x y] = ndgrid(sets{:});
@@ -27,7 +27,7 @@ for i=1:size(combinations,1)
     if param1<param2 % param1*param2 is the same as param2*param1
         new_param=T(:,param1).*T(:,param2); % multiplying the 2 param
         T_new=[new_param,T]; % add new row
-        err_new = crossvalidation(T_new,lambda); % calculate new error
+        err_new = crossValidation(T_new,lambda); % calculate new error
         err_perc = 100*(err_org-err_new)/err_org; % change in percent with previous error
         if err_perc>threshold
             j=j+1;
@@ -37,4 +37,4 @@ for i=1:size(combinations,1)
         end
     end
 end
-             
+
