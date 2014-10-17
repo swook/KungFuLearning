@@ -33,7 +33,7 @@ function selected_lambda = getMinErrLambda(T)
 		lambda0 = max(selected_lambda - dlambda, 0);
 		lambdaN = selected_lambda + dlambda;
 		%figure(1)
-		plot(lambdas, errs)
+		%plot(lambdas, errs)
 
 
 	end

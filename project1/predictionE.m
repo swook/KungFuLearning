@@ -7,6 +7,14 @@ function err = predictionE(predictors, V, lambda)
 	% Output:
 	% - err: Prediction error
 
+	[Nrows, Ncols] = size(V);
+
+	% If no feature present in dataset, error is infinite
+	if size(V, 2) < 2
+		err = inf;
+		return;
+	end
+
 	% Result from validation subset
 	realR = V(:, end);
 
@@ -14,7 +22,7 @@ function err = predictionE(predictors, V, lambda)
 	estR = V(:, 1:end-1) * predictors;
 
 	% Calculate prediction error
-    dR = (realR - estR);
+	dR = abs(realR - estR);
 	err = dot(dR, dR);
 end
 

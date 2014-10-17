@@ -10,13 +10,14 @@ function [predictors] = ridgeRegression(T, lambda)
 
 	% Input variables
 	X = T(:, 1:end-1);
+	Nfeat = size(X, 2);
+
+	% Calculate predictors
+	predictors = (X'*X + lambda*eye(Nfeat)) \ (X'*Y);
+	return;
 
 	% SVD of X
 	[U, D, V] = svd(X);
-
-	% Calculate predictors
-	predictors = (X'*X + lambda*eye(size(X,2))) \ (X'*Y);
-	return;
 
 	I = eye(size(D, 2));
 	%size(X)
