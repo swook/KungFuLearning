@@ -4,17 +4,17 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
 % paramCombination multiplies the different columns and adds that new
 % column to the data. It then tests if this brings the error down by a
 % certain threshold. If yes, the new column consisting of the
-% multiplication of these two parameters is added to the data.
+% multiplication of these two parameters is added to the data (at the end).
 %
 % The output consists of the matrix T_out, which contains the original and
-% the new data, and which is shifted in order to have a zero-mean.
+% the new data.
 %
 
 
 
 
     n_param = size(T,2)-1; % number of parameters
-    err_org = crossValidation(T,lambda) % original error
+    err_org = crossValidation(T,lambda); % original error
 
     sets = {[1:n_param], [1:n_param]};
     [x y] = ndgrid(sets{:});
@@ -41,6 +41,7 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
                 disp(['Combination of parameters ',num2str(param1),' and '...
                 ,num2str(param2),' makes it better by ', num2str(err_perc),'%'])
                 paramCombi(j,:)=[param1,param2];
+                disp(['This combination is added in column ',num2str(n_param+j)])
             end
         end
     end
@@ -49,9 +50,9 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
     for i=1:size(paramCombi,1)
         new_params(:,i)=T(:,paramCombi(i,1)).*T(:,paramCombi(i,2));
     end
-    T_out=[new_params,T]; %add new rows
-    T_out=shift(T_out); % shift to prevent non-zero means
-
-
+    T_out=[T(:,1:end-1),new_params,T(:,end)]; %add new rows right before end
+    err_paramC=crossValidation(T_out,lambda);
+    display(['The prediction error after combination is ',num2str(err_paramC)])
+    
 end
 

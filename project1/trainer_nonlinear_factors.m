@@ -1,32 +1,42 @@
 clear all
+disp('--------------------------------------------------------')% for separation
 
-T = csvread('training.csv');%import without row of ones as first row
-beta_0=sum(T(:,end)).*1/length(T(:,end)); % intersector is mean of y
+%T = csvread('training.csv');%import without row of ones as first row
+%beta_0=sum(T(:,end)).*1/length(T(:,end)); % y-intercept is mean of y
+T=importData('training.csv');
+
 
 Nrows = size(T, 1);
 lambda = getMinErrLambda(T); % first calculation of lambda for comparison
+err_org = crossValidation(T,lambda); % original error
+display(['A first error estimation is ',num2str(err_org)])
 
-[T_ext,paramCombi]=paramCombination(T,lambda);% T is extended with combinations and shifted
-[T_fact,selected_factors] = getNonlinFactors(T_ext,lambda);
-lambda_fact = getMinErrLambda(T_fact); % new specific calculation of optimal lambda
+
+[T,paramCombi]=paramCombination(T,lambda);% T is extended with combinations of parameters
+[T,selected_factors] = getNonlinFactors(T,lambda); 
+
+lambda_new = getMinErrLambda(T); % new specific calculation of optimal lambda
 
 
 % Calculate predictors using new lambda estimate
-predictors = ridgeRegression(T_fact, lambda_fact);
+predictors = ridgeRegression(T, lambda_new);
+prediction_error = crossValidation(T,lambda_new);
+display(['The prediction error is ',num2str(prediction_error)])
 
-V = csvread('validation.csv');%import without row of ones as first row
+%V = csvread('validation.csv');
+V=importData('validation.csv');
 
 new_params=zeros(size(V,1),size(paramCombi,1));
 for i=1:size(paramCombi,1)
     new_params(:,i)=V(:,paramCombi(i,1)).*V(:,paramCombi(i,2)); % combine parameters
 end
-V_ext=[new_params,V]; %add new rows with combination of parameters
-
-V_fact=shift(V_ext); % shift mean to 0;
-for i=1:size(V_fact,2)
-    V_fact(:,i)=V_fact(:,i).^selected_factors(i); % add factors
+V=[V,new_params]; %add new rows with combination of parameters at the end
+for i=1:size(V,2)
+    V(:,i)=V(:,i).^selected_factors(i); % add factors
 end
-estR = V_fact*predictors + beta_0*ones(size(V,1),1);% estimation of time
+
+estR = V*predictors;% estimation of time
+
 
 % Write our predictions (of time) to file
 csvwrite('predictions.txt', estR);
