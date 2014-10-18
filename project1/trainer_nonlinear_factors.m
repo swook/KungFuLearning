@@ -11,7 +11,7 @@ lambda = getMinErrLambda(T); % first calculation of lambda for comparison
 err_org = crossValidation(T,lambda); % original error
 display(['A first error estimation is ',num2str(err_org)])
 
-[T,selected_factors] = getNonlinFactors(T,lambda); 
+[T,selected_factors] = getNonlinFactors(T,lambda);
 [T,paramCombi]=paramCombination(T,lambda);% T is extended with combinations of parameters
 
 

@@ -20,8 +20,5 @@ for i = 1:Ncols
 	title(colTitles(i));
 end
 
-fname = 'figures/ResultVsFeatures';
-saveas(gcf, fname, 'fig');
-saveas(gcf, fname, 'eps');
-saveas(gcf, fname, 'png');
+savePlot('ResultVsFeatures');
 

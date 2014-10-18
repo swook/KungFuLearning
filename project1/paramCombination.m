@@ -15,6 +15,7 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
 
     n_param = size(T,2)-1; % number of parameters
     err_org = crossValidation(T,lambda); % original error
+	perr_org = crossValidation_final(T,lambda);
 
     sets = {[1:n_param], [1:n_param]};
     [x y] = ndgrid(sets{:});
@@ -26,7 +27,7 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
     T_new=zeros(size(T,1),size(T,2)+1);
     paramCombi=[];
 
-    threshold = 2; % in percent
+    threshold = 1; % in percent
     j=0;
     for i=1:size(combinations,1)
         param1=combinations(i,1);
@@ -47,12 +48,24 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
     end
 
     new_params=zeros(size(T,1),size(paramCombi,1));
+	perr_list = [];
     for i=1:size(paramCombi,1)
         new_params(:,i)=T(:,paramCombi(i,1)).*T(:,paramCombi(i,2));
+		perr_list = [perr_list crossValidation_final([T(:, 1:end-1), new_params(:, 1:i), T(:, end)], lambda)];
     end
     T_out=[T(:,1:end-1),new_params,T(:,end)]; %add new rows right before end
     err_paramC=crossValidation(T_out,lambda);
     display(['The prediction error after combination is ',num2str(err_paramC)])
-    
+
+	plot(1:length(perr_list), perr_list, '-b');	% Plot prediction errors
+	hold on;
+	plot(1:length(perr_list), ones(length(perr_list), 1) * perr_org, '-r'); %
+	hold off;
+	title('Variation of prediction error with selection of combined parameters')
+	ylabel('Prediction error')
+	xlabel('No. of new combination of parameters')
+	xlim([1 length(perr_list)]);
+	savePlot('paramCombination');
+
 end
 
