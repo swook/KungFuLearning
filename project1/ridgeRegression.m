@@ -13,8 +13,8 @@ function [predictors] = ridgeRegression(T, lambda)
 	Nfeat = size(X, 2);
 
 	% Calculate predictors
-    [msg, msgid] = lastwarn; % warning for sparse matrix
-    s = warning('off',msgid);% don't show the warning
+    %[msg, msgid] = lastwarn; % warning for sparse matrix
+    s = warning('off','MATLAB:nearlySingularMatrix');% don't show the warning
 	predictors = (X'*X + lambda*eye(Nfeat)) \ (X'*Y);
     warning(s); % activate warning again
 	return;
