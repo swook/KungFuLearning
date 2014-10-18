@@ -61,11 +61,11 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
 	hold on;
 	plot(1:length(perr_list), ones(length(perr_list), 1) * perr_org, '-r'); %
 	hold off;
-	title('Variation of prediction error with selection of combined parameters')
+	title('Variation of prediction error with selection of combined regressors')
 	ylabel('Prediction error')
-	xlabel('No. of new combination of parameters')
+	xlabel('No. of new combination of regressors')
 	xlim([1 length(perr_list)]);
-	savePlot('paramCombination');
+	savePlot('regressorCombination');
 
 end
 
