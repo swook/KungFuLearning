@@ -29,6 +29,7 @@ display(['The variance of this error is ',num2str(var_PS)])
 
 %V = csvread('validation.csv');
 V=importData('validation.csv');
+%V=importData('testing.csv');
 
 new_params=zeros(size(V,1),size(paramCombi,1));
 for i=1:size(V,2)
@@ -44,5 +45,6 @@ estR = V*predictors;% estimation of time
 
 
 % Write our predictions (of time) to file
-csvwrite('predictions.txt', estR);
+%csvwrite('predictions.txt', estR);
+dlmwrite('predictions.txt', estR, 'precision', '%.10f');
 
