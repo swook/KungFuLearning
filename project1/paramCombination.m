@@ -27,7 +27,7 @@ function [T_out,paramCombi]  = paramCombination( T,lambda )
     T_new=zeros(size(T,1),size(T,2)+1);
     paramCombi=[];
 
-    threshold = 1; % in percent
+    threshold = 2; % in percent
     j=0;
     for i=1:size(combinations,1)
         param1=combinations(i,1);
