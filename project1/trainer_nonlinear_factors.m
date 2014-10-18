@@ -7,7 +7,7 @@ T=importData('training.csv');
 
 
 Nrows = size(T, 1);
-lambda = getMinErrLambda(T); % first calculation of lambda for comparison
+lambda = getMinErrLambda(T,0); % first calculation of lambda for comparison
 err_org = crossValidation(T,lambda); % original error
 display(['A first error estimation is ',num2str(err_org)])
 
@@ -15,7 +15,7 @@ display(['A first error estimation is ',num2str(err_org)])
 [T,paramCombi]=paramCombination(T,lambda);% T is extended with combinations of parameters
 
 
-lambda_new = getMinErrLambda(T); % new specific calculation of optimal lambda
+lambda_new = getMinErrLambda(T,0); % new specific calculation of optimal lambda
 
 
 % Calculate predictors using new lambda estimate
