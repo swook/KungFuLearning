@@ -8,3 +8,29 @@ Should be:
 	y_i \omega^T x_i \geq 1
 
 
+
+Steps
+-----
+
+0. Pre-process data
+   1. Normalize
+
+1. Sweep hyperparameter (C, ...)
+
+   C: cost due to soft-margin slack variables (?)
+
+   1. Cross Validation
+      0. Split dataset (Determine K)
+      1. Gradient Descent for test sub-sets
+         1. Calculate grad L
+	 2. Select weighting
+	 3. Maximise grad L
+      2. Return error
+
+   2. Pick hyperparameters with lowest error
+      NOTE: error favours FN
+
+2. Use chosen hyperparameters to calculate parameters
+   Gradient Descent and SVM
+
+
