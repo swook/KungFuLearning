@@ -1,0 +1,10 @@
+TA for this project
+-------------------
+chen.chen@inf.ethz.ch
+
+
+Mistake in slide 8 of tutorial slides part 1:
+Should be:
+	y_i \omega^T x_i \geq 1
+
+
