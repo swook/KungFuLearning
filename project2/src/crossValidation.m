@@ -47,8 +47,10 @@ function [ est_perr ] = crossvalidation(dataset, C)
         parameters = gradientDescent(T, C);
 
         % Calculate prediction error
-        perr = predictionE(parameters, V, C);
+        perr = predictionE(parameters, V);
         perr_list = [perr_list perr];
+
+        disp(['Did ' num2str(i)]);
     end
 
     % Calculate estimate of prediction error
@@ -57,6 +59,6 @@ end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    %K = min(sqrt(size(dataset, 1)), 10);
-    K = floor(sqrt(size(dataset, 1)));
+    K = min(sqrt(size(dataset, 1)), 10);
+    %K = floor(sqrt(size(dataset, 1)));
 end
