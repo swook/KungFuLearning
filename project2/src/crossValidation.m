@@ -8,7 +8,7 @@ function [ est_perr ] = crossvalidation(dataset, C)
     % - est_perr: Estimated prediction error
 
     % No. of rows in datasets
-    N = size(dataset, 1);
+    [N, Ncols] = size(dataset);
 
     % No. of training subsets
     K = calculateNSubsets(dataset);
@@ -26,7 +26,10 @@ function [ est_perr ] = crossvalidation(dataset, C)
     %T = zeros(N - N_K*K, size(dataset, 1));
     %V = zeros(N_L, size(dataset, 1));
 
+    parameters = zeros(Ncols - 1, 1);
+
     % For each validation subset
+    fprintf('Did ');
     for i = 1:K % Position of validation subset
 
         % Calculate range of rows of validation subset
@@ -44,14 +47,15 @@ function [ est_perr ] = crossvalidation(dataset, C)
         V = dataset(i_Vstart:i_Vend, :);
 
         % Run regression
-        parameters = gradientDescent(T, C);
+        parameters = gradientDescent(T, C, parameters);
 
         % Calculate prediction error
         perr = predictionE(parameters, V);
         perr_list = [perr_list perr];
 
-        disp(['Did ' num2str(i)]);
+        fprintf('%d ', i);
     end
+    fprintf('\n');
 
     % Calculate estimate of prediction error
     est_perr = mean(perr_list);
@@ -59,6 +63,6 @@ end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(sqrt(size(dataset, 1)), 10);
+    K = min(sqrt(size(dataset, 1)), 20);
     %K = floor(sqrt(size(dataset, 1)));
 end
