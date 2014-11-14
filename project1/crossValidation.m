@@ -1,4 +1,4 @@
-function [ est_perr ] = crossvalidation(dataset, lambda)
+function [ est_perr ] = crossValidation(dataset, lambda)
 	% Inputs:
 	% - dataset: Training dataset
 	% - lambda:  Tuning parameter of Ridge Regression

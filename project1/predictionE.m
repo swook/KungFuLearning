@@ -23,6 +23,8 @@ function err = predictionE(predictors, V, lambda)
 
 	% Calculate prediction error
 	dR = abs(realR - estR);
+    % Prediction error
 	err = dot(dR, dR);
+    
 end
 
