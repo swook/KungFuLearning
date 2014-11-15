@@ -10,5 +10,5 @@ function dataset = importData(pathname)
     dataset = [X, y];
 
     % Add 0th predictor (y-intercept)
-    dataset = [ones(size(dataset, 1), 1) dataset];
+    dataset = [ones(Nrows, 1) dataset];
 end
