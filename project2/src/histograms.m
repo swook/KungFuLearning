@@ -1,5 +1,5 @@
-function histograms(T)
-    figure(1)
+function histograms(T,fig)
+    figure(fig)
     for i=1:27
         subplot(3,9,i)
         idx=[T(:,end)==1];
@@ -11,5 +11,6 @@ function histograms(T)
         h2 = findobj(gca,'Type','patch');
         set(h2,'facealpha',0.75);
         hold off
+        legend('healthy','sick')
     end
 end
