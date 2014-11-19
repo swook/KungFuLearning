@@ -22,9 +22,9 @@ function [w, perr] = pegasos(T, C)
 
     dw = ones(size(w));
 
-    k         = min(30, round(sqrt(N))); % Batch size
+    k         = min(10, round(sqrt(N))); % Batch size
     t         = 1;                       % Iteration step
-    lambda    = 3 / (N * C);             % Regularisation parameter
+    lambda    = 2 / (N * C);             % Regularisation parameter
     sqlambda  = sqrt(lambda);
     eta       = 1 / (lambda * t);        % Learning rate
     e_lim     = 5e-5/sqlambda;           % Error limit
@@ -83,7 +83,7 @@ function [w, perr] = pegasos(T, C)
         end
 
         % Forget about checking errors, just check no. of iters
-        if t > 1e4
+        if t > 1e5
             w    = perr_minw;
             perr = perr_min;
             break;

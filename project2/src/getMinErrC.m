@@ -1,6 +1,6 @@
 function selected_C = getMinErrC(T)
     % Minimum step in searching for min-err-C
-    CN = 200;
+    CN = 100;
     dC = CN;
     min_dC = .1;
     C0 = min_dC;
