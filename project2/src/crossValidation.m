@@ -29,7 +29,6 @@ function [ est_perr ] = crossvalidation(dataset, C)
     parameters = zeros(Ncols - 1, 1);
 
     % For each validation subset
-    fprintf('Did ');
     for i = 1:K % Position of validation subset
 
         % Calculate range of rows of validation subset
