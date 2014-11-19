@@ -1,6 +1,6 @@
 function selected_C = getMinErrC(T)
     % Minimum step in searching for min-err-C
-    CN = 100;
+    CN = 200;
     dC = CN;
     min_dC = .1;
     C0 = min_dC;
@@ -13,12 +13,13 @@ function selected_C = getMinErrC(T)
 
         errs = [];
 
-        disp(['Checking for C in ', num2str(C0), ' ~ ', num2str(CN)]);
+        fprintf('Checking for C in %f ~ %f\n', C0, CN);
         for C = Cs
-            disp(sprintf('C = %f\t|\t', C));
+            fprintf('> C   = %f\t\t| ', C);
             errs = [errs crossValidation(T, C)];
-            disp(sprintf('\t|\terr = %f', errs(end)));
+            fprintf('  err = %f\n', errs(end));
         end
+        fprintf('\n');
 
         % Select C with smallest estimated prediction errors
         [min_value, min_index] = min(errs);
