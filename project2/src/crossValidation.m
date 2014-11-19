@@ -46,10 +46,11 @@ function [ est_perr ] = crossvalidation(dataset, C)
         V = dataset(i_Vstart:i_Vend, :);
 
         % Run regression
-        parameters = gradientDescent(T, C, parameters);
+        %parameters = gradientDescent(T, C, parameters);
+        [parameters, perr] = pegasos(T, C);
 
         % Calculate prediction error
-        perr = predictionE(parameters, V);
+        %perr = predictionE(parameters, V);
         perr_list = [perr_list perr];
 
         fprintf('%d ', i);
@@ -62,6 +63,6 @@ end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(sqrt(size(dataset, 1)), 20);
+    K = min(sqrt(size(dataset, 1)), 15);
     %K = floor(sqrt(size(dataset, 1)));
 end
