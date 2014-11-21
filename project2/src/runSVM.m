@@ -16,10 +16,12 @@ function runSVM()
     S = 0.8; % rbf sigma
     C = findOptimalC(T, S, 0.001, 100);
     S = findOptimalS(T, C, 0.001, 5);
+    C = findOptimalC(T, S, 0.001, 100);
 
     % Model finalised
     model = train(X, Y, C, S); % Calculate final model
     fprintf('Final model calculated.\n');
+    fprintf('Predicted error: %f.\n\n', calcError(model, X, Y));
 
     % Load validation dataset
     V = preprocess(csvread('../data/validation.csv'));
@@ -33,6 +35,9 @@ function X = preprocess(X)
     [Nrows, Nfeats] = size(X);
     X = X - repmat(mean(X), Nrows, 1);
     X = X./ repmat(std(X), Nrows, 1);
+
+    % Add 0th predictor
+    %X = [ones(Nrows, 1) X];
 
     % Combine features
     % Note: feats are mean intensity, mean & variance of gradient values
@@ -62,7 +67,7 @@ function selected_V = findOptimal(T, name, V0, VN, func)
         for V = Vs
             fprintf('> %s   = %f\t\t| ', name, V);
             err = crossval(@(x1, x2)(func(x1, x2, V)), T,           ...
-                            'kfold', max(15, round(sqrt(Nrows))),   ... % 20-fold VV
+                            'kfold', min(15, round(sqrt(Nrows))),   ... % 15-fold VV
                             'Options', statset('UseParallel', true) ... % Make parallel
                            );
             errs = [errs mean(err)];
