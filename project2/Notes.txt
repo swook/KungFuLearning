@@ -34,3 +34,15 @@ Steps
    Gradient Descent and SVM
 
 
+Notes
+-----
+
+AdaBoost (Slide 17)
+Many weak classifiers, hundreds, thousands, or more.
+
+AdaBoost (Slide 18)
+t: True y (class)
+y: weak classifier
+x: x
+
+
