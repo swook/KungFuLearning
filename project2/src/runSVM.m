@@ -19,13 +19,19 @@ function runSVM()
     C = findOptimalC(T, S, 0.001, 100);
 
     % Model finalised
+    Xmean = mean(X);
+    Xstd = std(X);
+    X = (X - repmat(Xmean, Nrows, 1)) ./ repmat(Xstd, Nrows, 1);
     model = train(X, Y, C, S); % Calculate final model
     fprintf('Final model calculated.\n');
     fprintf('Predicted error: %f.\n\n', calcError(model, X, Y));
 
     % Load validation dataset
     V = preprocess(csvread('../data/validation.csv'));
-    est = svmclassify(model, V);         % Calculate estimates
+    Nrows = size(V, 1);
+    V = (V - repmat(Xmean, Nrows, 1)) ./ repmat(Xstd, Nrows, 1);
+    %est = svmclassify(model, V);         % Calculate estimates
+    est = svmpredict(ones(size(V, 1), 1), V, model, '-q'); % Calculate estimates
     csvwrite('../predictions.txt', est); % Write estimates to file
     fprintf('Wrote predictions to file.\n');
 end
@@ -33,8 +39,6 @@ end
 function X = preprocess(X)
     % Normalise
     [Nrows, Nfeats] = size(X);
-    X = X - repmat(mean(X), Nrows, 1);
-    X = X./ repmat(std(X), Nrows, 1);
 
     % Add 0th predictor
     %X = [ones(Nrows, 1) X];
@@ -55,10 +59,10 @@ end
 function selected_V = findOptimal(T, name, V0, VN, func)
     Nrows  = size(T, 1);
     dV     = 1;
-    min_dV = (VN - V0) / 100;
+    min_dV = (VN - V0) / 200;
 
     while dV > min_dV
-        dV = (VN - V0) / 5;
+        dV = (VN - V0) / 10;
         Vs = V0:dV:VN;
 
         errs = [];
@@ -66,12 +70,14 @@ function selected_V = findOptimal(T, name, V0, VN, func)
         fprintf('Checking in %f ~ %f\n', V0, VN);
         for V = Vs
             fprintf('> %s   = %f\t\t| ', name, V);
-            err = crossval(@(x1, x2)(func(x1, x2, V)), T,           ...
-                            'kfold', min(15, round(sqrt(Nrows))),   ... % 15-fold VV
-                            'Options', statset('UseParallel', true) ... % Make parallel
-                           );
-            errs = [errs mean(err)];
-            fprintf('  err = %f\n', errs(end));
+            %err = crossval(@(x1, x2)(func(x1, x2, V)), T,           ...
+            %                'Leaveout', 1,                      ...
+            %                'Options', statset('UseParallel', true) ... % Make parallel
+            %               );
+                            %'kfold', max(30, round(sqrt(Nrows))),   ... % 15-fold VV
+            err = crossValidation(T, @(x1, x2)(func(x1, x2, V)));
+            errs = [errs err];
+            fprintf('  err = %.9f\n', err);
         end
         fprintf('\n');
 
@@ -79,7 +85,7 @@ function selected_V = findOptimal(T, name, V0, VN, func)
         [min_value, min_index] = min(errs);
         selected_V = Vs(min_index);
 
-        V0 = max(selected_V - dV, 1e-7);
+        V0 = max(selected_V - dV, 1e-4);
         VN = selected_V + dV;
     end
 end
@@ -89,30 +95,43 @@ function perr = trainInCV(Ttrain, Ttest, C, S)
     Ytrain = Ttrain(:, end);
     Xtest = Ttest(:, 1:end-1);
     Ytest = Ttest(:, end);
+
+    % Normalise features
+    Nrows = size(Xtrain, 1);
+    xmean = mean(Xtrain);
+    xstd  = std(Xtrain);
+    Xtrain = (Xtrain - repmat(mean(Xtrain), Nrows, 1)) ./ repmat(std(Xtrain), Nrows, 1);
+    Xtest = (Xtest - repmat(xmean, size(Xtest, 1), 1)) ./ repmat(xstd, size(Xtest, 1), 1);
+
     perr = calcError(train(Xtrain, Ytrain, C, S), Xtest, Ytest);
 end
 
 % Trains model given training data using selected methods
 function model = train(X, Y, Cval, Sval)
-    % Set asymmetric costs for FPs
-    C = ones(size(Y)) .* Cval;
-    C(Y < 0) = 5 .* Cval;
+    Sval = .5 / (Sval*Sval);
+    model = svmtrain(Y, X, ...
+                     sprintf('-q -s 0 -g %f -c %f -w-1 5 -w1 1 -e 1e-7', Sval, Cval));
 
-    model = svmtrain(X, Y, ...
-                     'kernel_function', 'rbf',  ...
-                     'rbf_sigma',       Sval,      ...
-                     'method',          'SMO',  ...
-                     'autoscale',       false,  ...
-                     'boxconstraint',   C,      ...
-                     'options',         statset(...
-                         'MaxIter', 80000 ...
-                     )...
-                    );
+    % Set asymmetric costs for FPs
+    %C = ones(size(Y)) .* Cval;
+    %C(Y < 0) = 5 .* Cval;
+    %
+    %model = svmtrain(X, Y, ...
+    %                 'kernel_function', 'rbf',  ...
+    %                 'rbf_sigma',       Sval,      ...
+    %                 'method',          'SMO',  ...
+    %                 'autoscale',       false,  ...
+    %                 'boxconstraint',   C,      ...
+    %                 'options',         statset(...
+    %                     'MaxIter', 80000 ...
+    %                 )...
+    %                );
 end
 
 % Calculate prediction error with asymmetric cost accounted for
 function perr = calcError(model, X, Y)
-    labels = svmclassify(model, X);
+    %labels = svmclassify(model, X);
+    labels = svmpredict(ones(size(Y)), X, model, '-q');
     dR = labels - Y;
     perr = (sum(5 * (dR > 0)) + sum(dR < 0)) / size(Y, 1);
 end

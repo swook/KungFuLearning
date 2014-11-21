@@ -1,8 +1,8 @@
-function [ est_perr ] = crossvalidation(dataset, C)
+function [ est_perr ] = crossvalidation(dataset, func)
     % Inputs:
     % - dataset: Training dataset
     % - C:       Hyperparameter for SVM
-    % -
+    % - S:       rbf sigma
     %
     % Output:
     % - est_perr: Estimated prediction error
@@ -47,7 +47,7 @@ function [ est_perr ] = crossvalidation(dataset, C)
 
         % Run regression
         %parameters = gradientDescent(T, C, parameters);
-        [parameters, perr] = pegasos(T, C);
+        perr = func(T, V);
 
         % Calculate prediction error
         %perr = predictionE(parameters, V);
