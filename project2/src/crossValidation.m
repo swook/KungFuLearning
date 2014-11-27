@@ -40,7 +40,7 @@ function [ est_perr ] = crossvalidation(dataset, func)
         end
 
         % Training data subset
-        T = dataset([1:i_Vend-1 i_Vend+1:N], :);
+        T = dataset([1:i_Vstart-1 i_Vend+1:N], :);
 
         % Validation data subset
         V = dataset(i_Vstart:i_Vend, :);
@@ -63,6 +63,6 @@ end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(sqrt(size(dataset, 1)), 15);
+    K = min(sqrt(size(dataset, 1)), 10);
     %K = floor(sqrt(size(dataset, 1)));
 end

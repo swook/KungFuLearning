@@ -14,9 +14,9 @@ function runSVM()
     % TODO: Range over values of C and find optimal C
     C = 40;  % Cost parameter
     S = 0.8; % rbf sigma
-    C = findOptimalC(T, S, 0.001, 100);
-    S = findOptimalS(T, C, 0.001, 5);
-    C = findOptimalC(T, S, 0.001, 100);
+    C = findOptimalC(T, S, 0.0001, 4);
+    S = findOptimalS(T, C, 0.0001, 2);
+    C = findOptimalC(T, S, 0.0001, 4);
 
     % Model finalised
     Xmean = mean(X);
@@ -59,7 +59,7 @@ end
 function selected_V = findOptimal(T, name, V0, VN, func)
     Nrows  = size(T, 1);
     dV     = 1;
-    min_dV = (VN - V0) / 200;
+    min_dV = 1e-5;
 
     while dV > min_dV
         dV = (VN - V0) / 10;
@@ -77,7 +77,7 @@ function selected_V = findOptimal(T, name, V0, VN, func)
                             %'kfold', max(30, round(sqrt(Nrows))),   ... % 15-fold VV
             err = crossValidation(T, @(x1, x2)(func(x1, x2, V)));
             errs = [errs err];
-            fprintf('  err = %.9f\n', err);
+            fprintf('  err = %.15f\n', err);
         end
         fprintf('\n');
 
@@ -110,7 +110,7 @@ end
 function model = train(X, Y, Cval, Sval)
     Sval = .5 / (Sval*Sval);
     model = svmtrain(Y, X, ...
-                     sprintf('-q -s 0 -g %f -c %f -w-1 5 -w1 1 -e 1e-7', Sval, Cval));
+                     sprintf('-q -s 0 -g %f -c %f -w-1 5 -w1 1 -e 1e-10', Sval, Cval));
 
     % Set asymmetric costs for FPs
     %C = ones(size(Y)) .* Cval;
