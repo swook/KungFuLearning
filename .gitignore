@@ -1,1 +1,4 @@
-**/predictions.txt
+**/predictions*.txt
+**.log
+**.aux
+**.out
