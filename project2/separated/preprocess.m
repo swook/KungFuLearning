@@ -7,5 +7,15 @@ function X = preprocess(X)
 
     % Combine features
     % Note: feats are mean intensity, mean & variance of gradient values
-    %X(:, 3:3:Nfeats) = sqrt(X(:, 3:3:Nfeats));
+    meanInt = X(:, 1:3:Nfeats);
+    meanGra = X(:, 2:3:Nfeats);
+    varGrad = X(:, 3:3:Nfeats);
+    stdGrad = sqrt(varGrad);
+
+    %X = addCols(X, meanInt.*stdGrad);
+    %X = addCols(X, meanGra.*stdGrad);
+end
+
+function newX = addCols(oldX, cols)
+    newX = [oldX, cols];
 end
