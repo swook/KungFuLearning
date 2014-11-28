@@ -29,8 +29,8 @@ function [ est_perr ] = crossvalidation(dataset, C,S)
     parameters = zeros(Ncols - 1, 1);
 
     % For each validation subset
-    if matlabpool('size') == 0
-        matlabpool open;
+    if isempty(gcp('nocreate'))
+        parpool;
     end
     parfor i = 1:K % Position of validation subset
 
