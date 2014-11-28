@@ -15,8 +15,8 @@
     S = 0.55; % rbf sigma  S=0.55
 %     C = findOptimalC(T, S, 0.0001, 4);
 %     S = findOptimalS(T, C, 0.0001, 2);
-    [C,S]=findOptimal2Param(T,0.01,1,0.1,1);
-    
+    [C,S]=findOptimal2Param([X Y],0.01,1,0.1,1);
+
     % Model finalised
     Xmean = mean(X);
     Xstd = std(X);
