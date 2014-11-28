@@ -29,7 +29,10 @@ function [ est_perr ] = crossvalidation(dataset, C,S)
     parameters = zeros(Ncols - 1, 1);
 
     % For each validation subset
-    for i = 1:K % Position of validation subset
+    if matlabpool('size') == 0
+        matlabpool open;
+    end
+    parfor i = 1:K % Position of validation subset
 
         % Calculate range of rows of validation subset
         i_Vstart = (i-1) * N_K + 1;
