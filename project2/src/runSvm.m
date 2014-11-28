@@ -33,3 +33,14 @@
     est = svmpredict(ones(size(V, 1), 1), V, model, '-q'); % Calculate estimates
     csvwrite('../predictions.txt', est); % Write estimates to file
     fprintf('Wrote predictions to file.\n');
+
+    % Load final testing dataset
+    F = preprocess(csvread('../data/testing.csv'));
+    Nrows = size(F, 1);
+    F = (F - repmat(Xmean, Nrows, 1)) ./ repmat(Xstd, Nrows, 1);
+    %est = svmclassify(model, F);         % Calculate estimates
+    est = svmpredict(ones(size(F, 1), 1), F, model, '-q'); % Calculate estimates
+    csvwrite('../predictions_final.txt', est); % Write estimates to file
+    fprintf('Wrote final predictions to file.\n');
+
+
