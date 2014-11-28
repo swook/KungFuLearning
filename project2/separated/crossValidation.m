@@ -61,11 +61,11 @@ function [ est_perr ] = crossvalidation(dataset, C,S)
     %fprintf('\n');
 
     % Calculate estimate of prediction error
-    est_perr = mean(perr_list)+2*var(perr_list);
+    est_perr = mean(perr_list) + std(perr_list);
 end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(floor(sqrt(size(dataset, 1))), 30);
+    K = min(floor(sqrt(size(dataset, 1))), 10);
     %K = floor(sqrt(size(dataset, 1)));
 end
