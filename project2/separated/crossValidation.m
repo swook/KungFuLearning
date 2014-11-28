@@ -66,6 +66,6 @@ end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(floor(sqrt(size(dataset, 1))), 30);
+    K = min(floor(sqrt(size(dataset, 1))), 10);
     %K = floor(sqrt(size(dataset, 1)));
 end
