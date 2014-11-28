@@ -61,7 +61,7 @@ function [ est_perr ] = crossvalidation(dataset, C,S)
     %fprintf('\n');
 
     % Calculate estimate of prediction error
-    est_perr = mean(perr_list)+2*var(perr_list);
+    est_perr = mean(perr_list)+2*std(perr_list);
 end
 
 function [K] = calculateNSubsets(dataset)

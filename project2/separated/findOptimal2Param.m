@@ -1,6 +1,6 @@
 function [Aopt,Bopt]=findOptimal2Param(T,Amin,Amax,Bmin,Bmax)
     N=5;        %Number of grid points is N^2
-    tol=1e-4;
+    tol=1e-3;
     derr=1e3;   %Starting values
     oldAopt=1;
     oldBopt=2;
