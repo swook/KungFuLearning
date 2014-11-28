@@ -12,7 +12,8 @@ function X = preprocess(X)
     varGrad = X(:, 3:3:Nfeats);
     stdGrad = sqrt(varGrad);
 
-    X = addCols(X, meanGra + stdGrad);
+    %X = addCols(X, meanGra + stdGrad);
+    X = addCols(X, meanGra - stdGrad);
     %X = addCols(X, meanGra.*stdGrad);
 end
 
