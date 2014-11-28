@@ -1,4 +1,4 @@
-function [ est_perr ] = crossvalidation(dataset, func)
+function [ est_perr ] = crossvalidation(dataset, C,S)
     % Inputs:
     % - dataset: Training dataset
     % - C:       Hyperparameter for SVM
@@ -29,7 +29,10 @@ function [ est_perr ] = crossvalidation(dataset, func)
     parameters = zeros(Ncols - 1, 1);
 
     % For each validation subset
-    for i = 1:K % Position of validation subset
+    if isempty(gcp('nocreate'))
+        parpool;
+    end
+    parfor i = 1:K % Position of validation subset
 
         % Calculate range of rows of validation subset
         i_Vstart = (i-1) * N_K + 1;
@@ -47,22 +50,22 @@ function [ est_perr ] = crossvalidation(dataset, func)
 
         % Run regression
         %parameters = gradientDescent(T, C, parameters);
-        perr = func(T, V);
+        perr = trainInCV(T, V, C,S);
 
         % Calculate prediction error
         %perr = predictionE(parameters, V);
         perr_list = [perr_list perr];
 
-        fprintf('%d ', i);
+        %fprintf('%d ', i);
     end
-    fprintf('\n');
+    %fprintf('\n');
 
     % Calculate estimate of prediction error
-    est_perr = mean(perr_list);
+    est_perr = mean(perr_list)+std(perr_list); % also penalize variation beween sets ==> improves robustness
 end
 
 function [K] = calculateNSubsets(dataset)
     % Engineers' solution to finding no. of training subsets
-    K = min(sqrt(size(dataset, 1)), 10);
+    K = min(floor(sqrt(size(dataset, 1))), 10);
     %K = floor(sqrt(size(dataset, 1)));
 end
