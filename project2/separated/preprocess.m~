@@ -13,7 +13,7 @@ function X = preprocess(X)
     stdGrad = sqrt(varGrad);
 
     %X = addCols(X, meanInt.*stdGrad);
-    X = addCols(X, meanGra+stdGrad);
+    X = addCols(X, meanGra + stdGrad);
 end
 
 function newX = addCols(oldX, cols)
