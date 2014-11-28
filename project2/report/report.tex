@@ -1,0 +1,111 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage{graphicx,caption,subcaption}
+\usepackage{epstopdf}
+\usepackage{amsmath}
+\usepackage[pdftex]{hyperref}
+\usepackage{algorithm}
+
+% Lengths and indenting
+\setlength{\textwidth}{16.5cm}
+\setlength{\marginparwidth}{1.5cm}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.15cm}
+\setlength{\textheight}{22cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0cm}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\title{Machine Learning 2014: Project 2 - Support Vector Machine Report}
+\author{anguyen@student.ethz.ch\\ spark@student.ethz.ch\\ frenaut@student.ethz.ch\\}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Experimental Protocol}
+We first imported the data, added some combination of features, then ran cross
+validation over candidate $C$ and $\sigma$ values (see section \ref{sec:algo}).
+
+Within the cross validation, we normalised the training and validation subsets
+using the following formula:
+
+\begin{equation}
+	\hat{x}_{i,j} = \left(x_{i,j} - \mu_j \right) / \sigma_j
+\end{equation}
+
+After attaining optimal hyperparameters, we then ran the trainer on the whole
+dataset to acquire our final model.
+
+Mean and standard deviation of the whole dataset were then calculated to
+normalise the validation dataset in a method similar to the following:
+
+\begin{equation}
+	\hat{x}^{\mathrm{val}}_{i,j} = \left(x^{\mathrm{val}}_{i,j} -
+		\mu^{\mathrm{train}}_j \right) / \sigma^{\mathrm{train}}_j
+\end{equation}
+
+\section{Tools}
+Initially plain $\mathtt{MATLAB}$ and the $\mathtt{MATLAB}$ statistics toolbox
+were used but finally we decided to use $\mathtt{MATLAB}$ with libsvm (written
+in C) for performance.
+
+
+\section{Algorithm\label{sec:algo}}
+Custom gradient descents were initially used in the optimisation step of SVM.
+We tried implementing standard gradient-descent, SGD, batched SGD, and pegasos
+methods. However we found the resulting errors and time-to-solution unsatisfactory.
+In this step we were using the primal formulation of soft-margin SVM.
+
+We next used SMO to solve soft-margin SVM for the dual problem. This enabled us
+to perform feature transformations using the kernel trick.
+
+We tested linear, polynomial, sigmoid kernels but decided to use the radial
+basis function due to better results.
+
+
+\section{Features}
+A histogram was made of every given feature, colour-coded depending on class. It
+was then possible to see that mean intensity values are the only features for
+which it is relatively easy to see the two distinct classes as separable
+distributions.
+
+Therefore, we attempted to combine the other two feature types in different ways
+and monitored the resulting predicted generalisation errors.
+
+We finally decided on adding the following new features:
+
+\begin{equation}
+	\mathrm{gradient\ mean} - \sqrt{\mathrm{gradient\ variance}}
+\end{equation}
+
+
+\section{Parameters}
+The cost-hyperparameter $C$ for soft-margin SVM and standard deviation parameter
+$\sigma$ (for the rbf kernel) were then determined using joint cross-validation.
+
+We noticed cross validation results tended to be quite random when using the
+built-in $\mathtt{crossval}$ function. This turned out to be due to the random
+partitioning employed by the built-in function. We thus implemented our own
+function which partitions the training dataset in a predictable manner.
+
+To incorporate the variance of errors across different subsets, we added the
+standard deviation to the mean of errors as a final measure in evaluating
+the optimality of our hyperparameters. This was to avoid overfitting and create
+a more robust algorithm.
+
+We used 10-fold cross validation as it performed better and resulted in lower
+generalisation errors than 15-fold or higher cross validation.
+
+
+\section{Lessons Learned}
+We focused too much on implementing custom optimisation methods such as SGD as
+we did not know we could use existing libraries.
+
+Using library functions helped us focus better on other aspects such as tuning
+cross validation and feature transformations.
+
+\end{document}
