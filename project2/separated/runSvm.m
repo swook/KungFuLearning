@@ -11,11 +11,11 @@
 
     % Cross-validation to find optimal C
     % TODO: Range over values of C and find optimal C
-    C = 1.25;  % Cost parameter C=1.25
+    C = 1.1;  % Cost parameter C=1.25
     S = 0.55; % rbf sigma  S=0.55
 %     C = findOptimalC(T, S, 0.0001, 4);
 %     S = findOptimalS(T, C, 0.0001, 2);
-    %[C,S]=findOptimal2Param(T,0.01,1,0.1,1);
+    [C,S]=findOptimal2Param(T,0.01,1,0.1,1);
     
     % Model finalised
     Xmean = mean(X);
