@@ -1,7 +1,7 @@
 function model = train(X, Y, Cval, Sval)
     Sval = .5 / (Sval*Sval);
     model = svmtrain(Y, X, ...
-                     sprintf('-q -s 0 -g %f -c %f -w-1 5 -w1 1 -e 1e-7', Sval, Cval));
+                     sprintf('-q -s 0 -g %f -c %f -w-1 5 -w1 1 -e 1e-7 -h 0', Sval, Cval));
 
     % Set asymmetric costs for FPs
     %C = ones(size(Y)) .* Cval;
