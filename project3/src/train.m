@@ -1,4 +1,4 @@
-function model = train(X, Y, Cval, Sval)
+%function model = train(X, Y, Cval, Sval)
     % TODO: fitensemble
     [D, fpath] = parseCSV('training.csv');
     [wordToIdxMap, equivWordMap] = createMaps(D, fpath);
@@ -12,4 +12,4 @@ function model = train(X, Y, Cval, Sval)
     % For Validation Set
     %[V, fpath] = parseCSV('validation.csv');
     %X = dictToFeatMat(V, wordToIdxMap, equivWordMap);
-end
+%end

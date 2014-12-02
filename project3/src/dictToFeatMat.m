@@ -4,6 +4,7 @@ function X = dictToFeatMat(D, wordToIdxMap, equivWordMap)
 
     M = size(D, 1);
     N = wordToIdxMap.Count;
+    words = wordToIdxMap.keys;
 
     X = zeros(M, N);	% feature Matrix for classification
 
@@ -21,6 +22,14 @@ function X = dictToFeatMat(D, wordToIdxMap, equivWordMap)
 
             % TODO: If word doesn't exist in wordToIdxMap, expand equivWordMap
             %       to include word->{existing featureWord}
+            if ~wordToIdxMap.isKey(word)
+                dists = zeros(N, 1);
+                for w = 1:N
+                    dists(w) = levenshtein(3, word, words{w});
+                end
+                [~, I] = min(dists);
+                word = words{I};
+            end
 
             % Increment occurrence count of word in sentence
             idx = wordToIdxMap(word);

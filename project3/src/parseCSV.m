@@ -30,11 +30,11 @@ function [D, newfpath] = parseCSV(fname)
     for j = 1:M
         instr = rawD{1}{j};
 
-        % Remove non-alphanumeric characters
-        instr = regexprep(instr, '([^ \w]*)', '');
-
         % Set to lower case
         instr = lower(instr);
+
+        % Remove non-alphabet characters
+        instr = regexprep(instr, '([^ a-z]*)', '');
 
         % Trim whitespace at start and end of string
         instr = strtrim(instr);
