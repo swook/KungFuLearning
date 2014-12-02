@@ -5,6 +5,8 @@ function model = train(X, Y, Cval, Sval)
     X = dictToFeatMat(D, wordToIdxMap, equivWordMap);
     Y = [D{:, 2}]';
 
+    size(X)
+
     % Machine Learning (Adaboost?)
 
     % For Validation Set
