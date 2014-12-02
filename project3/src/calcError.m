@@ -1,7 +1,5 @@
-function perr = calcError(model, X, Y)
-    % TODO: Apply new error function
-    labels = svmpredict(ones(size(Y)), X, model, '-q');
-    dR = labels - Y;
-    perr = (sum(5 * (dR > 0)) + sum(dR < 0)) / size(Y, 1);
+function perr = calcError(Yhat_city,Yhat_country, Y_city, Y_country)
+    % Yhat_* : predicted values
+	 % Y_* : true values
+    perr = sum(Yhat_city~=Y_city) + 0.25*sum(Yhat_country~=Y_country) 
 end
-
