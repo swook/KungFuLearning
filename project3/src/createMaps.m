@@ -46,6 +46,14 @@ function [wordToIdxMap, equivWordMap] = createMaps(D, fname)
         dat = load(newfpath, 'dict', '-mat');
         dict = dat.dict;
     else
+        % 0. Sort in descending occurrence count
+        % 1. Remove those with count below threshold1
+        % 2. Go down words list (word1) and check all other words below (word2)
+        %    - if levenshtein(word1, word2) lower than threshold2
+        %        equivWordMap(word2) = word1;
+        %    - else
+        %        continue;
+
         % save(newfpath, 'dict');
     end
 
