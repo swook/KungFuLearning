@@ -16,11 +16,14 @@ function X = dictToFeatMat(D, wordToIdxMap, equivWordMap)
 
             % If there is word mapping
             if equivWordMap.isKey(word)
-                word = equivWordMap.(word);
+                word = equivWordMap(word);
             end
 
+            % TODO: If word doesn't exist in wordToIdxMap, expand equivWordMap
+            %       to include word->{existing featureWord}
+
             % Increment occurrence count of word in sentence
-            idx = wordToIdxMap.(word);
+            idx = wordToIdxMap(word);
             X(j, idx) = X(j, idx) + 1;
         end
     end

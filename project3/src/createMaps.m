@@ -1,6 +1,5 @@
-function [wordToIdxMap, equivWordMap, newfpath] = createMaps(D, fname)
+function [wordToIdxMap, equivWordMap] = createMaps(D, fname)
     fpath = ['../data/', fname];
-    newfpath = strrep(fpath, '_split.dat', '_dict.dat');
 
     wordToIdxMap = containers.Map();
     equivWordMap = containers.Map();
@@ -10,6 +9,8 @@ function [wordToIdxMap, equivWordMap, newfpath] = createMaps(D, fname)
         return;
     end
 
+    % Create initial dictionary of all words
+    newfpath = strrep(fpath, '_split.dat', '_dict.dat');
     if exist(newfpath)
         dat = load(newfpath, 'dict', '-mat');
         dict = dat.dict;
@@ -17,7 +18,6 @@ function [wordToIdxMap, equivWordMap, newfpath] = createMaps(D, fname)
 
         [M, N] = size(D);
 
-        % Create dictionary of all words
         word = '';
         dict = containers.Map();
         for j = 1:M
@@ -40,7 +40,14 @@ function [wordToIdxMap, equivWordMap, newfpath] = createMaps(D, fname)
         save(newfpath, 'dict');
     end
 
-    % TODO: Reduce dictionary
+    % Reduce dictionary by reducing duplicates
+    newfpath = strrep(fpath, '_split.dat', '_dict_reduced.dat');
+    if exist(newfpath)
+        dat = load(newfpath, 'dict', '-mat');
+        dict = dat.dict;
+    else
+        % save(newfpath, 'dict');
+    end
 
     % Create wordToIdxMap, a map from word to index on feature matrix
     keys = dict.keys;
