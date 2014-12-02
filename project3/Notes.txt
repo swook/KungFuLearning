@@ -1,0 +1,28 @@
+Import data
+
+Create dictionary of words
+	Key:   word      (string)
+	Value: occurence (integer)
+
+[Preprocess: reduce noise]
+	Reduce duplicates (with minor differences)
+		Capitalisation
+		Extra characters
+		Slightly different order of characters
+
+Each word is a feature
+
+X: MxN where
+	M:     No. of data points
+	N:     No. of features
+	entry: No. of occurence of feature for data point
+
+Y: Mx1 where
+	entry is {City code}{Country code} combined
+
+Run ensemble methods (or other multi-class classifier)
+
+[Apply same preprocessing as before to validation set]
+
+Calculate estimations using model
+
