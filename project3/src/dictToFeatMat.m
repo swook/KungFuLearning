@@ -5,7 +5,7 @@ function X = dictToFeatMat(D, wordToIdxMap, equivWordMap)
     M = size(D, 1);
     N = wordToIdxMap.Count;
 
-    X = zeros(M, N);
+    X = zeros(M, N);	% feature Matrix for classification
 
     word = '';
     idx  = 0;

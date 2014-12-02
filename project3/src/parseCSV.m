@@ -1,7 +1,10 @@
 function [D, newfpath] = parseCSV(fname)
+	% loads csv file with strings into cell Matrix D
+	% returns path as well
     fpath = ['../data/', fname];
     newfpath = strrep(fpath, '.csv', '_split.dat');
 
+	% no need to run function again if that file was already loaded
     if exist(newfpath)
         dat = load(newfpath, 'D', '-mat');
         D = dat.D;
