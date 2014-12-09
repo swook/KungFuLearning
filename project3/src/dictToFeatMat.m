@@ -1,4 +1,6 @@
 function X = dictToFeatMat(D, wordToIdxMap, equivWordMap)
+	% uses cell matrix D and maps created by createMap.m to get
+	% a sparse matrix X which can be used for classification
     % equivWordMap: insignificantWord -> featureWord
     % wordToIdxMap: featureWord       -> Col. index in X
 

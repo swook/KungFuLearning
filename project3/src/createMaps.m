@@ -1,4 +1,9 @@
 function [wordToIdxMap, equivWordMap] = createMaps(D, fname)
+	% creates word Maps from cell matrix D which indicate what Words
+	% are important (used as feature) and where they are found in D.
+	% equivWordMap: insignificantWord -> featureWord
+    % wordToIdxMap: featureWord       -> Col. index in X
+
     fpath = ['../data/', fname];
 
     wordToIdxMap = containers.Map();
