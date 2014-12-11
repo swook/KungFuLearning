@@ -3,9 +3,9 @@ function [models,alpha] = adaBoost3 (X,Y)
 [Nrows,Nfeats]=size(X);
 
 w=(1/Nrows)*ones(Nrows,1);
-models=cell(Nfeats,1);
+models=zeros(Nfeats,1);
 alpha = zeros(Nfeats,1);
-N_resample = 5000;
+N_resample = Nrows;
 for b=1:Nfeats
     fprintf('%d\n', b);
     % Resampling
@@ -13,9 +13,10 @@ for b=1:Nfeats
     X_resample = X(idx_resample,:);
     Y_resample = Y(idx_resample,:);
     % Classify
-    models{b} = svmtrain(Y_resample, X_resample(:,b),'-q'); % classify using one feature
+    m = svmtrain(Y_resample, X_resample(:,b),'-q -t 0'); % classify using one feature
     % Predict and compute error
-    output = svmpredict(1,1, models{b},'-q');
+    output = svmpredict(1,1, m,'-q');
+    models(b) = output;
     misclassified = (X(:,b)~=(Y==output));
     err = sum(misclassified.*w);
     % Update alpha
@@ -29,7 +30,7 @@ for b=1:Nfeats
     alpha(b) = 0.5*log((1-err)/err);
     % Update weights
     for i = 1:Nrows
-        w(i) = w(i)*exp(-alpha(b)*((Y(i)==output)));
+        w(i) = w(i)*exp(-alpha(b)*((Y(i)==output)*2-1));
     end
     w = w./sum(w);
 end
