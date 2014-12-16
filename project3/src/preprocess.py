@@ -15,7 +15,8 @@ def main():
     V = import_data('validation.csv')
     F = import_data('testing.csv')
     (word_map, word_idx_map) = gen_wordmap(T + V + F)
-    print '# of insignificant words :%d\n # of feature words :%d' % (len(word_map),len(word_idx_map))
+    print '# of insignificant words: %d' % len(word_map)
+    print '# of feature words: %d'       % len(word_idx_map)
     cache_results(word_map, word_idx_map)
 
 class DataRow:
@@ -95,6 +96,13 @@ def gen_wordmap(dat):
     # Go through sorted list of tuples (word, count)
     while i < len(C):
         word1 = C[i][0]
+
+        # Add word1 to word_idx_map
+        #  significant word - to - index in feature matrix
+        if word1 not in word_idx_map:
+            word_idx_map[word1] = w
+            w += 1
+
         len1 = len(word1)
         count1 = C[i][1]
         thresh = thresh_pct * max(len1, len2)
@@ -118,12 +126,6 @@ def gen_wordmap(dat):
             if dist < thresh:
                 word_map[word2] = word1 # word2 maps to word1
                 del C[j]                # Remove word2 from C to skip in outer loop
-                # Add word1 to word_idx_map
-                #  significant word - to - index in feature matrix
-                if word1 not in word_idx_map:
-                    word_idx_map[word1] = w
-                    w += 1
-
                 print '(%d/%d) %s <- %s (%f)' % (i, len(C), word1, word2, dist)
 
             j += 1
