@@ -15,6 +15,7 @@ def main():
     V = import_data('validation.csv')
     F = import_data('testing.csv')
     (word_map, word_idx_map) = gen_wordmap(T + V + F)
+    print '# of insignificant words :%d\n # of feature words :%d' % (len(word_map),len(word_idx_map))
     cache_results(word_map, word_idx_map)
 
 class DataRow:
@@ -90,26 +91,18 @@ def gen_wordmap(dat):
     thresh_pct = 0.05
 
     i = 0
+	# For each word in dict, go through all the words under it and try to find matches (levenshtein dist. small enough). 
     # Go through sorted list of tuples (word, count)
     while i < len(C):
         word1 = C[i][0]
-        # Add word1 to word_idx_map
-        #  sig word - to - index in feature matrix
-        if word1 not in word_idx_map:
-            word_idx_map[word1] = w
-            w += 1
-
         len1 = len(word1)
-        count1 = C[i][1]
         thresh = round(thresh_pct * max(len1, len2))
 
         # Go through all words from index i + 1 (one after word1)
         j = i + 1
         while j < len(C):
             word2 = C[j][0]
-
             len2 = len(word2)
-            count2 = C[j][1]
 
             # Check lengths before attempting levenshtein
             if abs(len1 - len2) > thresh:
@@ -123,7 +116,13 @@ def gen_wordmap(dat):
             # If distance below threshold, consider word2 insignificant
             if dist < thresh:
                 word_map[word2] = word1 # word2 maps to word1
-                del C[j]                # Remove word2 from C to skip in outer loop
+                del C[j]                # Remove word2 from C to skip in outer loop 			           
+                # Add word1 to word_idx_map
+                #  significant word - to - index in feature matrix
+                if word1 not in word_idx_map: 
+                    word_idx_map[word1] = w
+                    w += 1
+
                 print '(%d/%d) %s <- %s (%f)' % (i, len(C), word1, word2, dist)
 
             j += 1
