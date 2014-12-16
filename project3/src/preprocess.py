@@ -88,15 +88,16 @@ def gen_wordmap(dat):
     w = 0
 
     thresh = 0
-    thresh_pct = 0.05
+    thresh_pct = 0.09
 
     i = 0
-	# For each word in dict, go through all the words under it and try to find matches (levenshtein dist. small enough). 
+	# For each word in dict, go through all the words under it and try to find matches (levenshtein dist. small enough).
     # Go through sorted list of tuples (word, count)
     while i < len(C):
         word1 = C[i][0]
         len1 = len(word1)
-        thresh = round(thresh_pct * max(len1, len2))
+        count1 = C[i][1]
+        thresh = thresh_pct * max(len1, len2)
 
         # Go through all words from index i + 1 (one after word1)
         j = i + 1
@@ -116,10 +117,10 @@ def gen_wordmap(dat):
             # If distance below threshold, consider word2 insignificant
             if dist < thresh:
                 word_map[word2] = word1 # word2 maps to word1
-                del C[j]                # Remove word2 from C to skip in outer loop 			           
+                del C[j]                # Remove word2 from C to skip in outer loop
                 # Add word1 to word_idx_map
                 #  significant word - to - index in feature matrix
-                if word1 not in word_idx_map: 
+                if word1 not in word_idx_map:
                     word_idx_map[word1] = w
                     w += 1
 
@@ -146,7 +147,7 @@ def levenshtein(s1, s2, thresh):
         current_row = [i + 1]
 
         # Exponentially decay score further from first char
-        score = 1. / pow(1.2, i)
+        score = 1. / pow(1.8, i)
 
         for j, c2 in enumerate(s2):
             # j+1 instead of j since previous_row and current_row are one character longer
