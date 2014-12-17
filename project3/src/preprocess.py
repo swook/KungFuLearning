@@ -27,8 +27,12 @@ class DataRow:
     def __init__(self, csv_row):
         # Get description
         desc = csv_row[0]
-        desc = desc.lower()                          # To lowercase
-        includes = set(string.ascii_lowercase + ' ') # Filter everything apart from lowercase
+        desc = desc.lower()                     # To lowercase
+        includes = set(                         # Filter everything apart from...
+                       string.ascii_lowercase + # - lowercase
+                       #string.digits +          # - digits
+                       ' '                      # - whitespace
+                   )
         desc = ''.join(ch for ch in desc if ch in includes)
         self.desc = desc.split() # Split into list of words
 
@@ -89,7 +93,7 @@ def gen_wordmap(dat):
     w = 0
 
     thresh = 0
-    thresh_pct = 0.09
+    thresh_pct = 0.11
 
     i = 0
 	# For each word in dict, go through all the words under it and try to find matches (levenshtein dist. small enough).

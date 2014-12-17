@@ -99,7 +99,7 @@ def write_results(fname, Y):
     with open('../' + fname, 'w') as f:
         writer = csv.writer(f)
         for city in Y:
-            writer.writerow([city, math.floor(city / 1000)])
+            writer.writerow('%d, %d' % (city, math.floor(city / 1000)))
 
 if __name__ == "__main__":
     # execute only if run as a script
