@@ -31,7 +31,7 @@ def main():
     print 'F: %s x %s\n' % F.shape
 
     # Create K-nearest neighbors classifier
-    neigh = KNeighborsClassifier(n_neighbors=3)
+    neigh = KNeighborsClassifier(n_neighbors=2)
     neigh.fit(T, Y) # Fit to classifier
     print 'Training complete\n'
 

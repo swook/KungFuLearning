@@ -10,6 +10,8 @@ from collections import Counter
 from itertools import chain
 
 def main():
+    prep_levenshtein() # Calculate some numbers in advance
+
     # Training dataset
     T = import_data('training.csv')
     V = import_data('validation.csv')
@@ -30,7 +32,7 @@ class DataRow:
         desc = desc.lower()                     # To lowercase
         includes = set(                         # Filter everything apart from...
                        string.ascii_lowercase + # - lowercase
-                       #string.digits +          # - digits
+                       string.digits +          # - digits
                        ' '                      # - whitespace
                    )
         desc = ''.join(ch for ch in desc if ch in includes)
@@ -92,12 +94,13 @@ def gen_wordmap(dat):
     word_idx_map = {}
     w = 0
 
-    thresh = 0
-    thresh_pct = 0.11
+    thresh_pct = 0.39
 
-    i = 0
-	# For each word in dict, go through all the words under it and try to find matches (levenshtein dist. small enough).
+    # For each word in dict, go through all the words under it and try to find
+    # matches (levenshtein dist. small enough).
+    #
     # Go through sorted list of tuples (word, count)
+    i = 0
     while i < len(C):
         word1 = C[i][0]
 
@@ -123,11 +126,11 @@ def gen_wordmap(dat):
                 continue
 
             # Calculate custom levenshtein word-distance
-            dist = levenshtein(word1, word2, thresh + 100)
+            dist = levenshtein(word1, word2)
             #print '%s <-> %s: %f' % (word1, word2, dist)
 
             # If distance below threshold, consider word2 insignificant
-            if dist < thresh:
+            if dist < thresh_pct:
                 word_map[word2] = word1 # word2 maps to word1
                 del C[j]                # Remove word2 from C to skip in outer loop
                 print '(%d/%d) %s <- %s (%f)' % (i, len(C), word1, word2, dist)
@@ -138,40 +141,48 @@ def gen_wordmap(dat):
 
     return (word_map, word_idx_map)
 
-# levenshtein calculates the Levenshtein distance between two words and stops
-# past a given threshold
-def levenshtein(s1, s2, thresh):
-    if len(s1) < len(s2):
-        return levenshtein(s2, s1, thresh)
+decay_fac  = 1.5 # Decay factor to value first chars more in levenshtein dist
+scores     = []  # Pre-calculation of score at index
+max_scores = []  # Pre-calculation of max scores possible
 
-    # len(s1) >= len(s2)
-    if len(s2) == 0:
-        return len(s1)
+def prep_levenshtein():
+    max_score = 0.
+    for i in range(0, 100):
+        scores.append(1. / pow(decay_fac, i))
+        max_score += scores[-1]
+        max_scores.append(max_score)
+
+# levenshtein calculates the Levenshtein distance between two words
+# Returns a value in range [0, 1]
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
 
     previous_row = range(len(s2) + 1)
     for i, c1 in enumerate(s1):
         current_row = [i + 1]
 
         # Exponentially decay score further from first char
-        score = 1. / pow(1.8, i)
+        score = scores[i]
 
         for j, c2 in enumerate(s2):
             # j+1 instead of j since previous_row and current_row are one character longer
-            insertions = previous_row[j + 1] + score
+            insertions = previous_row[j + 1] + 1
 
             # than s2
-            deletions = current_row[j] + score
+            deletions = current_row[j] + 1
 
-            substitutions = previous_row[j] + (c1 != c2)
+            substitutions = previous_row[j] + (score if c1 != c2 else 0)
             current_row.append(min(insertions, deletions, substitutions))
 
             # Early termin if threshold reached
-            if current_row[-1] > thresh:
-                return current_row[-1]
+            # TODO: This doesn't work... try to fix
+            #if current_row[-1] > thresh:
+            #    break
 
         previous_row = current_row
 
-    return previous_row[-1]
+    return previous_row[-1] / max_scores[len(s1) - 1] # Normalise
 
 
 if __name__ == "__main__":
