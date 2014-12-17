@@ -104,18 +104,9 @@ def gen_wordmap(dat):
             w += 1
 
         len1 = len(word1)
-<<<<<<< HEAD
-        thresh = round(thresh_pct * max(len1, len2))
-	   	# Add word1 to word_idx_map
-        #  significant word - to - index in feature matrix
-        if word1 not in word_idx_map: 
-            word_idx_map[word1] = w
-            w += 1
-=======
         count1 = C[i][1]
         thresh = thresh_pct * max(len1, len2)
 
->>>>>>> 68e99ecb1594c0085891726df5b61ffe54e1b2b1
         # Go through all words from index i + 1 (one after word1)
         j = i + 1
         while j < len(C):
@@ -134,12 +125,7 @@ def gen_wordmap(dat):
             # If distance below threshold, consider word2 insignificant
             if dist < thresh:
                 word_map[word2] = word1 # word2 maps to word1
-<<<<<<< HEAD
-                del C[j]                # Remove word2 from C to skip in outer loop 			           
-
-=======
                 del C[j]                # Remove word2 from C to skip in outer loop
->>>>>>> 68e99ecb1594c0085891726df5b61ffe54e1b2b1
                 print '(%d/%d) %s <- %s (%f)' % (i, len(C), word1, word2, dist)
 
             j += 1
