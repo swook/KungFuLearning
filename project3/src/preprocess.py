@@ -94,7 +94,7 @@ def gen_wordmap(dat):
     word_idx_map = {}
     w = 0
 
-    thresh_pct = 0.39
+    thresh_pct = 0.1	# was 0.39
 
     # For each word in dict, go through all the words under it and try to find
     # matches (levenshtein dist. small enough).
@@ -128,7 +128,6 @@ def gen_wordmap(dat):
             # Calculate custom levenshtein word-distance
             dist = levenshtein(word1, word2)
             #print '%s <-> %s: %f' % (word1, word2, dist)
-
             # If distance below threshold, consider word2 insignificant
             if dist < thresh_pct:
                 word_map[word2] = word1 # word2 maps to word1
