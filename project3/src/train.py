@@ -8,7 +8,9 @@ import string
 
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import MultinomialNB
+ 
 from collections import Counter
 from itertools import chain
 
@@ -30,19 +32,32 @@ def main():
     print 'V: %s x %s' % V.shape
     print 'F: %s x %s\n' % F.shape
 
-    # Create K-nearest neighbors classifier
-    neigh = KNeighborsClassifier(n_neighbors=2)
-    neigh.fit(T, Y) # Fit to classifier
+#    # Create K-nearest neighbors classifier
+#    neigh = KNeighborsClassifier(n_neighbors=30)
+#    neigh.fit(T, Y) # Fit to classifier
+#    print 'Training complete\n'
+
+#    # Create Decision Tree classifier
+#    tree = DecisionTreeClassifier()
+#    tree.fit(T, Y) # Fit to classifier
+#    print 'Training complete\n'
+#    
+	# Create Naive Bayes Classifier
+    clf = MultinomialNB()
+    clf.fit(T,Y) # Fit to classifier
     print 'Training complete\n'
+
 
     #model = train(T, Y)
     #Y_hat = classify(T, model)
     #err = calc_error(Y, Y_hat)
     #print err
 
-    Y_hat = neigh.predict(V)
-    write_results('predictions_V.txt', Y_hat)
-    print Y_hat
+#    Y_hat = neigh.predict(V)
+#    Y_hat = tree.predict(V)
+    Y_hat = clf.predict(V)
+    write_results('predictions_tst.txt', Y_hat)
+#    print Y_hat
 
 
 def import_wordmap():
@@ -99,7 +114,8 @@ def write_results(fname, Y):
     with open('../' + fname, 'w') as f:
         writer = csv.writer(f)
         for city in Y:
-            writer.writerow('%d, %d' % (city, math.floor(city / 1000)))
+            lst = [city,math.floor(city / 1000)]
+            writer.writerow(lst)
 
 if __name__ == "__main__":
     # execute only if run as a script
