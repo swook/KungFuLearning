@@ -17,25 +17,33 @@ from preprocess import import_data
 def main():
     # Import training dataset and generate feature matrix
     (word_map, word_idx_map) = import_wordmap()
-    (T, Y) = dat_to_featmat(import_data('training.csv'), word_map, word_idx_map)
+
+    # Import datasets
+    (T, Y) = dat_to_featmat(import_data('training.csv'),   word_map, word_idx_map)
+    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
+    (F, _) = dat_to_featmat(import_data('testing.csv'),    word_map, word_idx_map)
+
+    # Print diagnostics
+    print 'Total no. of words in all datasets: %d' % (len(word_map) + len(word_idx_map))
+    print 'Reduced down to %d words.\n' % len(word_idx_map)
+    print 'T: %s x %s' % T.shape
+    print 'V: %s x %s' % V.shape
+    print 'F: %s x %s\n' % F.shape
 
     # Create K-nearest neighbors classifier
     neigh = KNeighborsClassifier(n_neighbors=3)
     neigh.fit(T, Y) # Fit to classifier
+    print 'Training complete\n'
 
     #model = train(T, Y)
     #Y_hat = classify(T, model)
     #err = calc_error(Y, Y_hat)
     #print err
 
-    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
-    print 'V = %s\nsize(V): %s\nsize(T): %s' % (V, V.size, T.size)
     Y_hat = neigh.predict(V)
     write_results('predictions_V.txt', Y_hat)
     print Y_hat
-    return
 
-    (F, _) = dat_to_featmat(import_data('testing.csv'), word_map, word_idx_map)
 
 def import_wordmap():
 
