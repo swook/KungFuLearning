@@ -56,7 +56,7 @@ def main():
 #    Y_hat = neigh.predict(V)
 #    Y_hat = tree.predict(V)
     Y_hat = clf.predict(V)
-    write_results('predictions_tst.txt', Y_hat)
+    write_results('predictions_V.txt', Y_hat)
 #    print Y_hat
 
 
