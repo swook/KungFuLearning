@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier, RadiusNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import HashingVectorizer
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from sklearn.feature_extraction.text import TfidfVectorizer 
 from sklearn import cross_validation
 from sklearn.metrics import make_scorer
@@ -40,12 +40,12 @@ def main():
     Y_country = np.floor(Y / 1000);
     DV = import_data('validation.csv')
     (SV,_) = dat_to_featstring(DV, word_map)
-#    T = featstring_to_charMatrix(ST)
-#    V = featstring_to_charMatrix(SV)
+    T = featstring_to_charMatrix(ST)
+    V = featstring_to_charMatrix(SV)
 
-    vectorizer = TfidfVectorizer()	
-    T = vectorizer.fit_transform(ST)
-    V = vectorizer.transform(SV)
+#    vectorizer = TfidfVectorizer()	
+#    T = vectorizer.fit_transform(ST)
+#    V = vectorizer.transform(SV)
     del DT,ST,DV,SV,word_map,word_idx_map
     # Create K-nearest neighbors classifier
     clf = KNeighborsClassifier(n_neighbors=5)
@@ -223,7 +223,7 @@ def write_results(fname, Y):
             writer.writerow(lst)
 def classifyPerCountry(T,V,Y,Y_country_hat):
 	Y_country = np.floor(Y / 1000)
-	print "Classifying per Country"
+	print "\nClassifying per Country"
 	Y_city = Y 
 	country_codes = list(set(Y_country))
 	nCountryCodes = len(country_codes)
@@ -231,17 +231,23 @@ def classifyPerCountry(T,V,Y,Y_country_hat):
 	for i in xrange(nCountryCodes):
 		print '%s\r' % ' '*20,
 		print '   ' , i*100/nCountryCodes,
-		clf = MultinomialNB(0.5)
+#		clf = MultinomialNB(0.5)
+		clf = SVC()
 		country_idx = np.in1d(Y_country,country_codes[i])
 		country_idx_sparse = country_idx.nonzero()[0]
 		T_country = T[country_idx_sparse,:]
 		Y_cityPerCountry = Y_city[country_idx]
-		clf.fit(T_country,Y_cityPerCountry)
+		unique_Y_cityPerCountry=list(set(Y_cityPerCountry))
 		predict_idx = np.in1d(Y_country_hat,country_codes[i])
 		predict_idx_sparse = predict_idx.nonzero()[0]
-		if sum(predict_idx) > 0:
+		if len(unique_Y_cityPerCountry)==1 :
+			Y_hat[predict_idx] = unique_Y_cityPerCountry
+			continue
+		clf.fit(T_country,Y_cityPerCountry)
+		if sum(predict_idx) > 1:
 			Y_cityPerCountry_hat = clf.predict(V[predict_idx_sparse,:])
 			Y_hat[predict_idx] = Y_cityPerCountry_hat
+	print "\n"
 	return Y_hat
 if __name__ == "__main__":
     # execute only if run as a script
