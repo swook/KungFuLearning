@@ -48,7 +48,7 @@ def main():
 #    V = vectorizer.transform(SV)
     del DT,ST,DV,SV,word_map,word_idx_map
     # Create K-nearest neighbors classifier
-    clf = KNeighborsClassifier(n_neighbors=5)
+    clf = SVC()
 #    print Y
 #    write_results('Y_org.txt', Y)
 
