@@ -13,6 +13,9 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer 
+from sklearn import cross_validation
+from sklearn.metrics import make_scorer
+from sklearn.cluster import MiniBatchKMeans
  
 from collections import Counter
 from itertools import chain
@@ -31,51 +34,34 @@ def main():
 #    # Print diagnostics
 #    print 'Total no. of words in all datasets: %d' % (len(word_map) + len(word_idx_map))
 #    print 'Reduced down to %d words.\n' % len(word_idx_map)
-#    print 'T: %s x %s' % T.shape
-#    print 'V: %s x %s' % V.shape
-#    print 'F: %s x %s\n' % F.shape
+
     DT = import_data('training.csv') 
     (ST,Y) = dat_to_featstring(DT, word_map)
     DV = import_data('validation.csv')
     (SV,_) = dat_to_featstring(DV, word_map)
     T = featstring_to_charMatrix(ST)
     V = featstring_to_charMatrix(SV)
-    print ST
-      
-#    vectorizer=HashingVectorizer()
-#    vectorizer=TfidfVectorizer()
-#    T=vectorizer.fit_transform(ST)
-#    V=vectorizer.transform(SV)
 
     # Create K-nearest neighbors classifier
-    neigh = KNeighborsClassifier(n_neighbors=10)
-#    neigh = RadiusNeighborsClassifier(radius=6)
-    neigh.fit(T, Y) # Fit to classifier
+#    clf = KNeighborsClassifier(n_neighbors=10)
+    print Y
+    write_results('Y_org.txt', Y)
+
+#    Y = correct_y(T,Y)
+    write_results('Y_changed.txt', Y)
+
+	# Create Naive Bayes Classifier  
+    clf = MultinomialNB()
+
+    # Fit to Classifier
+    clf.fit(T,Y) 
     print 'Training complete\n'
 
-#    # Create Decision Tree classifier
-#    tree = DecisionTreeClassifier()
-#    tree.fit(T, Y) # Fit to classifier
-#    print 'Training complete\n'
-#    
-	# Create Naive Bayes Classifier  
-#    clf = MultinomialNB()
-#    clf.fit(T,Y) # Fit to classifier
-#    print 'Training complete\n'
+	# Estimate error with crossvalidation
+    score=crossValidation(T,Y,clf)
 
-    # Create svm classifier
-#    clf = LinearSVC()
-#    clf.fit(T,Y)
-#    print 'Training complete\n'
-
-    #model = train(T, Y)
-    #Y_hat = classify(T, model)
-    #err = calc_error(Y, Y_hat)
-    #print err
-
-    Y_hat = neigh.predict(V)
-#    Y_hat = tree.predict(V)
-#    Y_hat = clf.predict(V)
+    # Calculate predictions
+    Y_hat = clf.predict(V)
     write_results('predictions_V.txt', Y_hat)
     print Y_hat								
 
@@ -121,7 +107,37 @@ def dat_to_featmat(dat, word_map, word_idx_map):
 
     return (X, Y)
 
+def correct_y(X,Y):
+	# Correct wrongly assigned ZIP codes
+	print "Correcting wrong ZIP codes..."
+	[N, Nfeats]=X.shape
+	NZIP=857
+	# use K-means clustering to make it faster
+	cluster=MiniBatchKMeans(NZIP,init_size=2000,max_iter=500)
+	cluster_distance = cluster.fit_transform(X)
+	cluster_values = cluster.predict(X)
+	clstr=np.zeros((N,2))
+	min_dist=1000*np.ones(NZIP)
+	Y_min=np.zeros(NZIP)
+	# clstr contains for each line cluster and cluster distance to center
+	for i in xrange(N):
+		idx = int(cluster_values[i])	
+		clstr[i][0]=idx
+		clstr[i][1]=cluster_distance[i][idx]
+		if (clstr[i][1]<min_dist[idx]) :
+			min_dist[idx]=clstr[i][1]
+			Y_min[idx]=Y[i]
+	counter=0
+	for i in xrange(N):
+		idx = int(clstr[i][0])
+		if ((clstr[i][1]<1.5) & (int(Y[i]/1000)==int(Y_min[idx]/1000))) :	
+			Y[i]= Y_min[idx]
+			counter+=1
+	print "%s ZIP codes corrected.", counter
+	return(Y)
+
 def dat_to_featstring(dat, word_map):
+	print "Creating new string Matrix..."
 	M = len(dat)
 	Y = np.zeros(M)
 	S = []
@@ -144,9 +160,10 @@ def dat_to_featstring(dat, word_map):
 	return (S, Y)
 
 def featstring_to_charMatrix(S):
+	print "Creating character feature Matrix..."
 	M = len(S)
 	alphabet = list(string.ascii_lowercase+string.digits)
-	print alphabet
+#	print alphabet
 	N = len(alphabet)
 	Mat = np.zeros((M,N))
 	for i in xrange(M):
@@ -163,9 +180,32 @@ def train(X, Y):
 def classify(X, model):
     pass
 
-def calc_error(Y, Y_hat):
-    pass
+def calcError(clf,X,Y):
+	# format has to be function(clf,X,Y) for the crossvalidation
+	Yhat=clf.predict(X)
+	Yhat_country = Yhat/1000
+	Yhat_city = Yhat%1000
+	Y_country = Y/1000
+	Y_city = Y%1000
+	unequal_city=np.in1d(Y_city,Yhat_city,invert=True)
+	unequal_country=np.in1d(Y_country,Yhat_country,invert=True)
+	perr = sum(unequal_city)+0.25*sum(unequal_country)
+	# scale error to be comparable with the one on the whole validaion set
+	perr *= (32220/len(X)) 
+	return perr
 
+def crossValidation(X,Y,clf):
+	print "Cross-validation..."
+	[N, Nfeats]=X.shape
+	# No. of subsets
+#	K = int(math.sqrt(N))
+	K = 3
+	
+	# Do cross validation using calcError function 
+	scores = cross_validation.cross_val_score(clf, X, Y, cv=K, scoring=calcError)
+	print "Error: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() / 2)
+	return scores
+	
 def write_results(fname, Y):
     with open('../' + fname, 'w') as f:
         writer = csv.writer(f)
