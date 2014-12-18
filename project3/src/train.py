@@ -37,32 +37,34 @@ def main():
 
     DT = import_data('training.csv') 
     (ST,Y) = dat_to_featstring(DT, word_map)
+    Y_country = np.floor(Y / 1000);
     DV = import_data('validation.csv')
     (SV,_) = dat_to_featstring(DV, word_map)
     T = featstring_to_charMatrix(ST)
     V = featstring_to_charMatrix(SV)
 
     # Create K-nearest neighbors classifier
-#    clf = KNeighborsClassifier(n_neighbors=10)
+    clf = KNeighborsClassifier(n_neighbors=5)
     print Y
-    write_results('Y_org.txt', Y)
+#    write_results('Y_org.txt', Y)
 
 #    Y = correct_y(T,Y)
-    write_results('Y_changed.txt', Y)
+#    write_results('Y_changed.txt', Y)
 
 	# Create Naive Bayes Classifier  
-    clf = MultinomialNB()
+    #clf = MultinomialNB()
 
     # Fit to Classifier
-    clf.fit(T,Y) 
+    clf.fit(T,Y_country) 
     print 'Training complete\n'
 
 	# Estimate error with crossvalidation
-    score=crossValidation(T,Y,clf)
-
+#    score=crossValidation(T,Y,clf)
+	
     # Calculate predictions
-    Y_hat = clf.predict(V)
-    write_results('predictions_V.txt', Y_hat)
+    Y_country_hat = clf.predict(V)
+    Y_hat = classifyPerCountry(T,V,Y,Y_country_hat)
+    write_results('predictions_V_new.txt', Y_hat)
     print Y_hat								
 
 
@@ -212,7 +214,24 @@ def write_results(fname, Y):
         for city in Y:
             lst = [int(city),int(math.floor(city / 1000))]
             writer.writerow(lst)
-
+def classifyPerCountry(T,V,Y,Y_country_hat):
+	Y_country = np.floor(Y / 1000)
+	Y_city = Y 
+	country_codes = list(set(Y_country))
+	print country_codes
+	nCountryCodes = len(country_codes)
+	Y_hat = np.zeros(len(Y_country_hat))
+	for i in xrange(nCountryCodes):
+		clf = KNeighborsClassifier(n_neighbors=2)
+		country_idx = np.in1d(Y_country,country_codes[i])
+		T_country = T[country_idx] 
+		Y_cityPerCountry = Y_city[country_idx]
+		clf.fit(T_country,Y_cityPerCountry)
+		predict_idx = np.in1d(Y_country_hat,country_codes[i])
+		if sum(predict_idx) > 0:
+			Y_cityPerCountry_hat = clf.predict(V[predict_idx])
+			Y_hat[predict_idx] = Y_cityPerCountry_hat
+	return Y_hat
 if __name__ == "__main__":
     # execute only if run as a script
     main()
