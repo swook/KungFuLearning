@@ -27,8 +27,8 @@ def main():
     (word_map, word_idx_map) = import_wordmap()
 
 #    # Import datasets
-#    (T, Y) = dat_to_featmat(import_data('training.csv'),   word_map, word_idx_map)
-#    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
+    (T, Y) = dat_to_featmat(import_data('training.csv'),   word_map, word_idx_map)
+    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
 #    (F, _) = dat_to_featmat(import_data('testing.csv'),    word_map, word_idx_map)
 #
 #    # Print diagnostics
@@ -40,12 +40,16 @@ def main():
     Y_country = np.floor(Y / 1000);
     DV = import_data('validation.csv')
     (SV,_) = dat_to_featstring(DV, word_map)
-    T = featstring_to_charMatrix(ST)
-    V = featstring_to_charMatrix(SV)
+#    T = featstring_to_charMatrix(ST)
+#    V = featstring_to_charMatrix(SV)
 
+    vectorizer = TfidfVectorizer()	
+    T = vectorizer.fit_transform(ST)
+    V = vectorizer.transform(SV)
+    del DT,ST,DV,SV,word_map,word_idx_map
     # Create K-nearest neighbors classifier
     clf = KNeighborsClassifier(n_neighbors=5)
-    print Y
+#    print Y
 #    write_results('Y_org.txt', Y)
 
 #    Y = correct_y(T,Y)
@@ -60,9 +64,12 @@ def main():
 
 	# Estimate error with crossvalidation
 #    score=crossValidation(T,Y,clf)
-	
+    Y_country_hat = np.zeros(32300)	
     # Calculate predictions
-    Y_country_hat = clf.predict(V)
+    for i in xrange(32300):
+       print '%s\r' % ' '*20,
+       print '   ' , i*100/32300, 
+       Y_country_hat[i] = clf.predict(V[i])
     Y_hat = classifyPerCountry(T,V,Y,Y_country_hat)
     write_results('predictions_V_new.txt', Y_hat)
     print Y_hat								
@@ -216,20 +223,24 @@ def write_results(fname, Y):
             writer.writerow(lst)
 def classifyPerCountry(T,V,Y,Y_country_hat):
 	Y_country = np.floor(Y / 1000)
+	print "Classifying per Country"
 	Y_city = Y 
 	country_codes = list(set(Y_country))
-	print country_codes
 	nCountryCodes = len(country_codes)
 	Y_hat = np.zeros(len(Y_country_hat))
 	for i in xrange(nCountryCodes):
-		clf = KNeighborsClassifier(n_neighbors=2)
+		print '%s\r' % ' '*20,
+		print '   ' , i*100/nCountryCodes,
+		clf = MultinomialNB(0.5)
 		country_idx = np.in1d(Y_country,country_codes[i])
-		T_country = T[country_idx] 
+		country_idx_sparse = country_idx.nonzero()[0]
+		T_country = T[country_idx_sparse,:]
 		Y_cityPerCountry = Y_city[country_idx]
 		clf.fit(T_country,Y_cityPerCountry)
 		predict_idx = np.in1d(Y_country_hat,country_codes[i])
+		predict_idx_sparse = predict_idx.nonzero()[0]
 		if sum(predict_idx) > 0:
-			Y_cityPerCountry_hat = clf.predict(V[predict_idx])
+			Y_cityPerCountry_hat = clf.predict(V[predict_idx_sparse,:])
 			Y_hat[predict_idx] = Y_cityPerCountry_hat
 	return Y_hat
 if __name__ == "__main__":
