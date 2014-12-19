@@ -18,34 +18,57 @@
 \renewcommand{\familydefault}{\sfdefault}
 
 \title{Machine Learning 2014: Project 3 - Text Classification Report}
-\author{member1@student.ethz.ch\\ member2@student.ethz.ch\\ member3@student.ethz.ch\\}
+\author{anguyen@student.ethz.ch\\ spark@student.ethz.ch\\ frenaut@student.ethz.ch\\}
 \date{\today}
 
 \begin{document}
 \maketitle
 
 \section*{Experimental Protocol}
-Suppose that someone wants to reproduce your results. Briefly describe the steps used to obtain the
-predictions starting from the raw data set downloaded from the project website. Use the following
-sections to explain your methodology. Feel free to add graphs or screenshots if you think it's
-necessary. The report should contain a maximum of 2 pages.
+Our approach can be divided in two fundamental steps:
+\begin{itemize}
+\item String Preprocessing
+\item Classification
+\end{itemize}
+Further details will be given in the next sections.
 
 \section{Tools}
-Which tools and libraries have you used (e.g. Matlab, Python with scikit-learn, Java with Weka,
-SPSS, language x with library y, $\ldots$). If you have source-code (Matlab scripts, Python scripts, Java source folder, \dots),
-make sure to submit it on the project website together with this report. If you only used
-command-line or GUI-tools describe what you did.
+For the project we used python with the scikit-learn library.\\
+In particular we used text mining tools for feature extraction (Tf-idf features)
+and multi-class SVM for classification.
 
 \section{Algorithm}
-Describe the algorithm you used for classification.
+\subsection{String Preprocessing}
+In this phase, we create a dictionary of key words that will be used as features for 
+the classification process.\\
+To do so, we map \emph{similar} words to the same key word.\\
+The notion of string similarity is based on the levenshtein distance, that we slightly 
+modified to better handle the problem. More in details, we assign a weight to 
+the characters of the string so that the ones in the last (the rightmost) positions have 
+less influence (e.g. 'g' and 'd' are more distant than 'yuiqosidnq' and 'yuiqosidnz').\\
+
+\subsection{Classification}
+The feature matrix is built using the key words weighted according to the tf-idf statistics.\\
+For the learning process, we used Support Vector Classification implemented in the scikit-learn
+library with radial basis functions as kernel. 
 
 \section{Features}
-Did you perform any preprocessing on the features? What feature transforms did you use?
+As mentioned before, we used as features adequately preprocessed keywords weighted according
+to their frequency.
 
 \section{Parameters}
-How did you find the parameters of your model? (What parameters have you searched over, cross validation procedure, $\ldots$)
+The most important parameters to tune were a threshold value in the preprocessing phase (to decide 
+if two words are similar enough to be considered the same) and the paramaters related to the classifier
+(in our case SVC with rbf kernel).\\
+Since classification required a considerable amount of time, all parameters were manually tuned over a
+very restrictive yet reasonable range of values.
 
-\section{Lessons Learned} What other algorithms did you try out that didn't work well?
-Why do you think they performed worse than what you used for your final submission?
+\section{Lessons Learned} 
+We tried to classify the data in two different phases: first by country code and then, given the country, 
+by city code. This approach performed worse. A reason could be that the samples cannot be easily classified 
+by country (and a country code misclassification leads directly to a city code misclassification).\\
+Also, we tried different classifiers, for example KNN. Results were acceptable but not good enough.
+This might be related to the curse of the dimensionality (the final model uses some thousands of feature words).
+
 
 \end{document} 

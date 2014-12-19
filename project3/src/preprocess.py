@@ -17,6 +17,8 @@ def main():
     V = import_data('validation.csv')
     F = import_data('testing.csv')
     (word_map, word_idx_map) = gen_wordmap(T + V + F)
+    #(word_map, word_idx_map) = gen_wordmap(T)
+    #(word_map) = gen_wordTestMap(V + F,word_map,word_idx_map)
     print '# of insignificant words: %d' % len(word_map)
     print '# of feature words: %d'       % len(word_idx_map)
     cache_results(word_map, word_idx_map)
@@ -94,7 +96,7 @@ def gen_wordmap(dat):
     word_idx_map = {}
     w = 0
 
-    thresh_pct = 0.1	# was 0.39
+    thresh_pct = 0.39	# was 0.39
 
     # For each word in dict, go through all the words under it and try to find
     # matches (levenshtein dist. small enough).
@@ -106,7 +108,7 @@ def gen_wordmap(dat):
 
         # Add word1 to word_idx_map
         #  significant word - to - index in feature matrix
-        if word1 not in word_idx_map:
+        if (word1 not in word_idx_map):
             word_idx_map[word1] = w
             w += 1
 
@@ -121,7 +123,7 @@ def gen_wordmap(dat):
             len2 = len(word2)
 
             # Check lengths before attempting levenshtein
-            if abs(len1 - len2) > thresh:
+            if (abs(len1 - len2) > thresh):
                 j += 1
                 continue
 
@@ -139,6 +141,50 @@ def gen_wordmap(dat):
         i += 1
 
     return (word_map, word_idx_map)
+
+def gen_wordTestMap(dat,word_map,word_idx_map):
+    # Count word occurrences
+    C = Counter([x for x in chain.from_iterable(row.desc for row in dat)])
+
+    # Convert to sorted list of (word, occurrence_count)
+    C = sorted(C.items(), key=operator.itemgetter(1), reverse=True)
+
+    # Iterate through list and combine words
+    word1 = ''
+    word2 = ''
+    len1 = 0
+    len2 = 0
+    count1 = 0
+    count2 = 0
+
+    dictionary = word_idx_map.keys()
+    print len(dictionary)
+    print len(word_idx_map)
+    thresh_pct = 0.39   # was 0.39
+    print "Processing new words"
+
+    i = 0
+    # Map new words
+    while i < len(C):
+        print '%s\r' % ' '*20,
+        print '   ' , i*100/len(C),
+        word1 = C[i][0]
+        
+
+        # If word1 not in word_map, then find the most close 
+        if (word1 not in word_map):
+            min_dist = 10000
+            for j in xrange(len(dictionary)):
+                word2 = dictionary[j]
+                dist = levenshtein(word2, word1)
+                if dist < min_dist:
+                    min_dist = min
+                    word_map[word1] = word2
+
+        i += 1
+
+    return (word_map)
+
 
 decay_fac  = 1.5 # Decay factor to value first chars more in levenshtein dist
 scores     = []  # Pre-calculation of score at index

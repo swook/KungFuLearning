@@ -27,8 +27,8 @@ def main():
     (word_map, word_idx_map) = import_wordmap()
 
 #    # Import datasets
-    (T, Y) = dat_to_featmat(import_data('training.csv'),   word_map, word_idx_map)
-    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
+#    (T, Y) = dat_to_featmat(import_data('training.csv'),   word_map, word_idx_map)
+#    (V, _) = dat_to_featmat(import_data('validation.csv'), word_map, word_idx_map)
 #    (F, _) = dat_to_featmat(import_data('testing.csv'),    word_map, word_idx_map)
 #
 #    # Print diagnostics
@@ -37,18 +37,21 @@ def main():
 
     DT = import_data('training.csv') 
     (ST,Y) = dat_to_featstring(DT, word_map)
-    Y_country = np.floor(Y / 1000);
+    #Y_country = np.floor(Y / 1000);
     DV = import_data('validation.csv')
     (SV,_) = dat_to_featstring(DV, word_map)
-    T = featstring_to_charMatrix(ST)
-    V = featstring_to_charMatrix(SV)
+    DF = import_data('testing.csv')
+    (SF,_) = dat_to_featstring(DV, word_map)
+    #T = featstring_to_charMatrix(ST)
+    #V = featstring_to_charMatrix(SV)
 
-#    vectorizer = TfidfVectorizer()	
-#    T = vectorizer.fit_transform(ST)
-#    V = vectorizer.transform(SV)
-    del DT,ST,DV,SV,word_map,word_idx_map
+    vectorizer = TfidfVectorizer()	
+    T = vectorizer.fit_transform(ST)
+    V = vectorizer.transform(SV)
+    F = vectorizer.transform(SF)
+    #del DT,ST,DV,SV,word_map,word_idx_map
     # Create K-nearest neighbors classifier
-    clf = SVC()
+    clf = SVC(gamma=0.5)
 #    print Y
 #    write_results('Y_org.txt', Y)
 
@@ -59,19 +62,22 @@ def main():
     #clf = MultinomialNB()
 
     # Fit to Classifier
-    clf.fit(T,Y_country) 
+    #clf.fit(T,Y_country) 
+    clf.fit(T,Y)
     print 'Training complete\n'
 
 	# Estimate error with crossvalidation
 #    score=crossValidation(T,Y,clf)
-    Y_country_hat = np.zeros(32300)	
+    #Y_country_hat = np.zeros(32300)	
+    Y_hat = np.zeros(len(DF))	
     # Calculate predictions
-    for i in xrange(32300):
+    for i in xrange(len(DF)):
        print '%s\r' % ' '*20,
-       print '   ' , i*100/32300, 
-       Y_country_hat[i] = clf.predict(V[i])
-    Y_hat = classifyPerCountry(T,V,Y,Y_country_hat)
-    write_results('predictions_V_new.txt', Y_hat)
+       print '   ' , i*100/len(DF), 
+       #Y_country_hat[i] = clf.predict(V[i])
+       Y_hat[i] = clf.predict(F[i])
+    #Y_hat = classifyPerCountry(T,V,Y,Y_country_hat)
+    write_results('predictions_Final.txt', Y_hat)
     print Y_hat								
 
 
